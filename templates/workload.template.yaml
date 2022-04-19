@@ -12,7 +12,7 @@ Metadata:
     - Label:
         default: VPC configuration
       Parameters:
-      - VPCCIDR
+      - VPCID
       - PublicSubnet1CIDR
       - PublicSubnet2CIDR
       - PublicSubnet3CIDR
@@ -27,6 +27,7 @@ Metadata:
       - KeyPairName
       - InstanceCount
       - PublicRemoteCidr
+      - QSS3Artifacts
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -34,7 +35,7 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-      VPCCIDR:
+      VPCID:
         default: VPC CIDR
       PublicSubnetAID:
         default: Public subnet 1 CIDR
@@ -48,6 +49,8 @@ Metadata:
         default: Quick Start S3 bucket Region
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
+      QSS3Artifacts:
+        default: Quick start S3 Binary store
       WorkloadInstanceType:
         default: Workload servers instance type
       CloudxrAMI:
@@ -76,6 +79,12 @@ Parameters:
     Description: ID of public subnet in Availability Zone 3.
       for the witness (e.g., subnet-a0246dcd).
     Type: AWS::EC2::Subnet::Id
+  QSS3Artifacts:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+      ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
+        letters, uppercase letters, and hyphens (-). It cannot start or end with a
+        hyphen (-).
+      Default: aws-quickstart-artifacts
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
@@ -154,10 +163,7 @@ Parameters:
     Default: 0.0.0.0/0
     Description: CIDR block for the Remote customers.
     Type: String
-  BucketName:
-    Type: String
-  RootURL:
-    Type: String    
+
       
 Mappings:
   AMI:
@@ -213,7 +219,7 @@ Resources:
           FromPort: 8443
           ToPort: 8443
           CidrIp: !Ref PublicRemoteCidr  
-      VpcId: !Ref VpcId  
+      VpcId: !Ref VPCID
     
   WorkstationAccessRole:
     Type: "AWS::IAM::Role"
@@ -240,8 +246,8 @@ Resources:
                   - "s3:Get*"
                   - "s3:List*"
                 Resource:
-                  - !Sub "arn:aws:s3:::${BucketName}"
-                  - !Sub "arn:aws:s3:::${BucketName}/*"     
+                  - !Sub "arn:aws:s3:::${QSS3Artifacts}"
+                  - !Sub "arn:aws:s3:::${QSS3Artifacts}/*"
                   - "arn:aws:s3:::ec2-windows-nvidia-drivers"
                   - "arn:aws:s3:::ec2-windows-nvidia-drivers/*"                                 
         - PolicyName: WorkstationSecretsAccess
@@ -260,43 +266,41 @@ Resources:
       Roles:
         - !Ref WorkstationAccessRole
 
-  WindowsNvidiaWorkstation:
+  WorkstationEIP:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: !Ref VPCID
+
+#  WorkstationNI:
+#    Type: "AWS::EC2::NetworkInterface"
+#    Properties:
+#      SubnetId: !Ref PublicSubnetAID
+#      GroupSet:
+#        - !Ref WorkstationSG
+
+
+  AssociateEIP:
+    Type: "AWS::EC2::EIPAssociation"
+    Properties:
+      InstanceId: !Ref WindowsNvidiaWorkstation
+      EIP: !Ref WorkstationEIP
+
+    WindowsNvidiaWorkstation:
     Type: 'AWS::EC2::Instance'
-    Metadata:
-      "AWS::CloudFormation::Authentication":
-         rolebased: 
-          type: S3
-          buckets: 
-            - !Sub ${BucketName}
-          roleName: 
-            Ref: WorkstationAccessRole
-            
-      "AWS::CloudFormation::Init":
-        configSets:
-          config:
-            - "1-setup"
-            - "2-run"
-        "1-setup":
-          files:
-            "C:\\cfn\\cfn-hup.conf":
-              authentication: rolebased
-              context:
-                Region: !Ref "AWS::Region"
-                StackId: !Ref "AWS::StackId"
-              source: !Join ["", [!Ref RootURL, "cfn-init/cfn-hup.conf"]]  
-            "C:\\cfn\\hooks.d\\cfn-auto-reloader.conf":
-              authentication: rolebased
-              context:
-                Region: !Ref "AWS::Region"
-                ResourceName: WindowsNvidiaWorkstation
-                StackId: !Ref "AWS::StackId"
-              source: !Join ["", [!Ref RootURL, "cfn-init/cfn-auto-reloader.conf"]]
-          services:
-            windows:
-              cfn-hup:
-                enabled: "true"
-                ensureRunning: "true"
-                files:
-                  - "c:\\cfn\\cfn-hup.conf"
-                  - "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf"    
+    Properties:
+      ImageId: !Sub
+        - "resolve:ssm:${AmiAlias}"
+        - { AmiAlias: !FindInMap [ AMI, Alias, !Ref CloudxrAMI ] }
+      InstanceType: !Ref WorkloadInstanceType
+      KeyName: !Ref KeyPairName
+      IamInstanceProfile: !Ref 'WorkstationAccessProfile'
+      SecurityGroups: [!Ref 'WorkstationSG']
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: !Ref CloudxrStorageVolumeSize
+            DeleteOnTermination: 'true'
+            Encrypted: 'false'
+
             

@@ -30,7 +30,7 @@ Metadata:
       - KeyPairName
       - InstanceCount
       - PublicRemoteCidr
-      - BucketName
+      - QSS3Artifacts
       
     
     - Label:
@@ -62,6 +62,8 @@ Metadata:
         default: Quick Start S3 bucket Region
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
+      QSS3Artifacts:
+        default: Quick Start S3 Bucket for Product Artifacts - VRED and STEAMVR
       WorkloadInstanceType:
         default: Workload servers instance type
       CloudxrAMI:
@@ -74,8 +76,7 @@ Metadata:
         default: Instance Count
       PublicRemoteCidr:
         default: CIDR for customer access
-      BucketName:
-        default: Bucket Hosting Vred and SteamVr Binaries      
+
 
 Parameters:
   AvailabilityZones:
@@ -125,6 +126,12 @@ Parameters:
     Default: 10.0.64.0/19
     Description: CIDR block for the private subnet located in Availability Zone 3.
     Type: String
+  QSS3Artifacts:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+      ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
+        letters, uppercase letters, and hyphens (-). It cannot start or end with a
+        hyphen (-).
+      Default: aws-quickstart-artifacts
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
@@ -277,11 +284,6 @@ Resources:
           Ref: InstanceCount
         PublicRemoteCidr:
           Ref: PublicRemoteCidr
-        BucketName: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-        RootURL:
-          !Sub
-            - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/
-            - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-              S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-          
+        QSS3Artifacts: !If [UsingDefaultBucket, !Sub '${QSS3Artifacts}-${AWS::Region}', !Ref QSS3Artifacts]
+
     
