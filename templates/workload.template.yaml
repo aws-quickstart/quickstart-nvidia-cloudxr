@@ -285,16 +285,35 @@ Resources:
       InstanceId: !Ref WindowsNvidiaWorkstation
       EIP: !Ref WorkstationEIP
 
-    WindowsNvidiaWorkstation:
-    Type: 'AWS::EC2::Instance'
+#    WindowsNvidiaWorkstation:
+#    Type: 'AWS::EC2::Instance'
+#    Properties:
+#      ImageId: !Sub
+#        - "resolve:ssm:${AmiAlias}"
+#        - { AmiAlias: !FindInMap [ AMI, Alias, !Ref CloudxrAMI ] }
+#      InstanceType: !Ref WorkloadInstanceType
+#      KeyName: !Ref KeyPairName
+#      IamInstanceProfile: !Ref 'WorkstationAccessProfile'
+#      SecurityGroups: [!Ref 'WorkstationSG']
+#      BlockDeviceMappings:
+#        - DeviceName: /dev/sda1
+#          Ebs:
+#            VolumeType: gp2
+#            VolumeSize: !Ref CloudxrStorageVolumeSize
+#            DeleteOnTermination: 'true'
+#            Encrypted: 'false'
+
+
+  LaunchConfig:
+    Type: "AWS::AutoScaling::LaunchConfiguration"
     Properties:
+      KeyName: !Ref KeyPairName
+      InstanceType: !Ref WorkloadInstanceType
+      IamInstanceProfile: !Ref 'WorkstationAccessProfile'
+      SecurityGroups: [!Ref 'WorkstationSG']
       ImageId: !Sub
         - "resolve:ssm:${AmiAlias}"
         - { AmiAlias: !FindInMap [ AMI, Alias, !Ref CloudxrAMI ] }
-      InstanceType: !Ref WorkloadInstanceType
-      KeyName: !Ref KeyPairName
-      IamInstanceProfile: !Ref 'WorkstationAccessProfile'
-      SecurityGroups: [!Ref 'WorkstationSG']
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
@@ -303,4 +322,14 @@ Resources:
             DeleteOnTermination: 'true'
             Encrypted: 'false'
 
-            
+  WindowsNvidiaWorkstation:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+        VPCZoneIdentifier:
+          - !Ref PublicSubnetAID
+          - !Ref PublicSubnetBID
+          - !Ref PublicSubnetCID
+        LaunchConfigurationName: !Ref 'LaunchConfig'
+        MinSize: 0
+        MaxSize: !Ref InstanceCount
+        DesiredCapacity: !Ref InstanceCount
