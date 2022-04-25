@@ -115,7 +115,7 @@ Parameters:
     ConstraintDescription: The Quick Start S3 key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), and forward slashes (/). The prefix should
       end with a forward slash (/).
-    Default: quickstart-starwind-vsan/
+    Default: quickstart-vred/
     Description: S3 key prefix that is used to simulate a folder for your copy of the
       Quick Start assets. Keep the default prefix unless you are customizing
       the template. Changing this prefix updates code references to point to
@@ -136,6 +136,12 @@ Parameters:
     - g4dn.8xlarge
     - g4dn.12xlarge
     - g4dn.16xlarge
+    - g5.xlarge
+    - g5.2xlarge
+    - g5.4xlarge
+    - g5.8xlarge
+    - g5.12xlarge
+    - g5.16xlarge
     ConstraintDescription: Must contain valid instance type.
     Default: g4dn.2xlarge
     Description: Type of EC2 instance for the workload instances.
@@ -143,10 +149,9 @@ Parameters:
   CloudxrAMI:
     Type: String
     Description: CloudXR Version with Winserver 2019
-    Default: Cloudxr3
+    Default: NVIDIAWIN
     AllowedValues:
-      - Cloudxr3
-      - Cloudxr2
+      - NVIDIAWIN
   CloudxrStorageVolumeSize:
     Type: Number
     Default: 200
@@ -155,15 +160,15 @@ Parameters:
     MaxValue: 16000
     Description: Size of Cloudxr virtualized storage in GBs.
   InstanceCount:
-    Description: Number of EC2 instances (must be between 1 and 5).
+    Description: Number of EC2 instances (must be between 1 and 10).
     Type: Number
     Default: 1
     MinValue: 1
     MaxValue: 10
     ConstraintDescription: Must be a number between 1 and 10.
   PublicRemoteCidr:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-32
     Default: 0.0.0.0/16
     Description: CIDR block for the Remote customers.
     Type: String
@@ -310,47 +315,13 @@ Resources:
       Roles:
         - !Ref WorkstationAccessRole
 
-#  WorkstationEIP:
-#    Type: "AWS::EC2::EIP"
-#    Properties:
-#      Domain: !Ref VPCID
 
-#  WorkstationNI:
-#    Type: "AWS::EC2::NetworkInterface"
-#    Properties:
-#      SubnetId: !Ref PublicSubnetAID
-#      GroupSet:
-#        - !Ref WorkstationSG
-
-
-#  AssociateEIP:
-#    Type: "AWS::EC2::EIPAssociation"
-#    Properties:
-#      InstanceId: !Ref WindowsNvidiaWorkstation
-#      EIP: !Ref WorkstationEIP
-
-#    WindowsNvidiaWorkstation:
-#    Type: 'AWS::EC2::Instance'
-#    Properties:
-#      ImageId: !Sub
-#        - "resolve:ssm:${AmiAlias}"
-#        - { AmiAlias: !FindInMap [ AMI, Alias, !Ref CloudxrAMI ] }
-#      InstanceType: !Ref WorkloadInstanceType
-#      KeyName: !Ref KeyPairName
-#      IamInstanceProfile: !Ref 'WorkstationAccessProfile'
-#      SecurityGroups: [!Ref 'WorkstationSG']
-#      BlockDeviceMappings:
-#        - DeviceName: /dev/sda1
-#          Ebs:
-#            VolumeType: gp2
-#            VolumeSize: !Ref CloudxrStorageVolumeSize
-#            DeleteOnTermination: 'true'
-#            Encrypted: 'false'
 
 
   LaunchConfig:
     Type: "AWS::AutoScaling::LaunchConfiguration"
     Properties:
+      AssociatePublicIpAddress: true
       KeyName: !Ref KeyPairName
       InstanceType: !Ref WorkloadInstanceType
       IamInstanceProfile: !Ref 'WorkstationAccessProfile'
@@ -367,6 +338,7 @@ Resources:
   WindowsNvidiaWorkstation:
     Type: "AWS::AutoScaling::AutoScalingGroup"
     Properties:
+        AutoScalingGroupName: 'VRED-CLOUDXR-ASG'
         VPCZoneIdentifier:
           - !Ref PublicSubnetAID
           - !Ref PublicSubnetBID
