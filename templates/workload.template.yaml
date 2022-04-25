@@ -16,9 +16,9 @@ Metadata:
         default: VPC configuration
       Parameters:
       - VPCID
-      - PublicSubnet1CIDR
-      - PublicSubnet2CIDR
-      - PublicSubnet3CIDR
+      - PublicSubnetAID
+      - PublicSubnetBID
+      - PublicSubnetCID
 
       # See lab instructions
     - Label:
@@ -31,6 +31,7 @@ Metadata:
       - InstanceCount
       - PublicRemoteCidr
       - QSS3Artifacts
+      - VREDLicenseServer
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -172,6 +173,7 @@ Parameters:
     Default: 0.0.0.0/16
     Description: CIDR block for the Remote customers.
     Type: String
+  VREDLicenseServer:
 
 
 Mappings:
@@ -222,6 +224,8 @@ Mappings:
 #     Cloudxr2: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-2.1.29897464-vgpu-12.1
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart-vred-cloudxr']
+
+
 
 Resources:
   WorkstationSG:
