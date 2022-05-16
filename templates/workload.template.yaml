@@ -1,8 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description:
-  This template deploys an EC2 instnace using the Nvidia Windows Marketplace  AMI in an existing VPC
+  This template deploys an EC2 instnace using the Nvidia Windows Marketplace AMI in an existing VPC (qs-1t26ph9er)
   
 Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9006
+        - W2030
   AWSAMIRegionMap:
     Filters:
       NVIDIAWIN:
@@ -25,13 +30,18 @@ Metadata:
         default: Amazon EC2 configuration
       Parameters:
       - WorkloadInstanceType
-      - CloudxrAMI
+#      - CloudxrAMI
       - CloudxrStorageVolumeSize
       - KeyPairName
       - InstanceCount
       - PublicRemoteCidr
-      - QSS3Artifacts
-      - VREDLicenseServer
+      - PrimaryNodeIP
+    - Label:
+        default: VRED media configuration
+      Parameters:
+      - MediaS3Bucket
+      - MediaS3Key
+      - SceneAddress
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -53,12 +63,10 @@ Metadata:
         default: Quick Start S3 bucket Region
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
-      QSS3Artifacts:
-        default: Quick start S3 Binary store
       WorkloadInstanceType:
         default: Workload servers instance type
-      CloudxrAMI:
-        default: Workload servers Cloudxr version
+#      CloudxrAMI:
+#        default: Workload servers Cloudxr version
       CloudxrStorageVolumeSize:
         default: Secondary EBS volume size
       KeyPairName:
@@ -67,6 +75,14 @@ Metadata:
         default: Instance Count
       PublicRemoteCidr:
         default: CIDR for customer access
+      PrimaryNodeIP:
+        default: Primary node IP address
+      MediaS3Bucket:
+        default: VRED media S3 bucekt
+      MediaS3Key:
+        default: VRED media S3 key
+      SceneAddress:
+        default: The address to a VRED scene file
 Parameters:
   VPCID:
     Description: ID of your existing VPC for deployment
@@ -83,19 +99,12 @@ Parameters:
     Description: ID of public subnet in Availability Zone 3.
       for the witness (e.g., subnet-a0246dcd).
     Type: AWS::EC2::Subnet::Id
-  QSS3Artifacts:
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
-        letters, uppercase letters, and hyphens (-). It cannot start or end with a
-        hyphen (-).
-    Default: aws-quickstart-artifacts
-    Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a
       hyphen (-).
-    Default: aws-quickstart-vred-cloudxr
+    Default: aws-quickstart
     Description: Name of the S3 bucket for your copy of the Quick Start assets.
       Keep the default name unless you are customizing the template.
       Changing the name updates code references to point to a new Quick
@@ -116,7 +125,7 @@ Parameters:
     ConstraintDescription: The Quick Start S3 key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), and forward slashes (/). The prefix should
       end with a forward slash (/).
-    Default: quickstart-vred/
+    Default: quickstart-nvidia-cloudxr/
     Description: S3 key prefix that is used to simulate a folder for your copy of the
       Quick Start assets. Keep the default prefix unless you are customizing
       the template. Changing this prefix updates code references to point to
@@ -147,12 +156,12 @@ Parameters:
     Default: g4dn.2xlarge
     Description: Type of EC2 instance for the workload instances.
     Type: String
-  CloudxrAMI:
-    Type: String
-    Description: CloudXR Version with Winserver 2019
-    Default: NVIDIAWIN
-    AllowedValues:
-      - NVIDIAWIN
+#  CloudxrAMI:
+#    Type: String
+#    Description: CloudXR Version with Winserver 2019
+#    Default: NVIDIAWIN
+#    AllowedValues:
+#      - NVIDIAWIN
   CloudxrStorageVolumeSize:
     Type: Number
     Default: 200
@@ -168,13 +177,33 @@ Parameters:
     MaxValue: 10
     ConstraintDescription: Must be a number between 1 and 10.
   PublicRemoteCidr:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|3[0-2]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-32
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
     Default: 0.0.0.0/16
     Description: CIDR block for the Remote customers.
     Type: String
-  VREDLicenseServer:
-
+  PrimaryNodeIP:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.128.100
+    Description: Primary private IP for the first cluster node located in Availability Zone 1.
+    Type: String
+  MediaS3Bucket:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: The bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a 
+      hyphen (-).
+    Default: aws-quickstart
+    Description: S3 bucket containing VRED installation media
+    Type: String
+  MediaS3Key:
+    ConstraintDescription: The Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slashes (/).
+    Default: quickstart-nvidia-cloudxr/SteamVR.zip
+    Description: S3 key for installation media
+    Type: String
+  SceneAddress:
+    Description: The address to a VRED scene file. It can be an URI or a path in a AWS S3 bucket.
+    Type: String
 
 Mappings:
   AWSAMIRegionMap:
@@ -223,9 +252,7 @@ Mappings:
 #      Cloudxr3: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.1-vgpu-13.1
 #     Cloudxr2: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-2.1.29897464-vgpu-12.1
 Conditions:
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart-vred-cloudxr']
-
-
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 
 Resources:
   WorkstationSG:
@@ -277,7 +304,11 @@ Resources:
 
   WorkstationAccessRole:
     Type: "AWS::IAM::Role"
-
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - EIAMPolicyWildcardResource
     Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -299,10 +330,10 @@ Resources:
                   - "s3:Get*"
                   - "s3:List*"
                 Resource:
-                  - !Sub "arn:aws:s3:::${QSS3Artifacts}"
-                  - !Sub "arn:aws:s3:::${QSS3Artifacts}/*"
-                  - "arn:aws:s3:::ec2-windows-nvidia-drivers"
-                  - "arn:aws:s3:::ec2-windows-nvidia-drivers/*"                                 
+                  - !Sub "arn:${AWS::Partition}:s3:::ec2-windows-nvidia-drivers"
+                  - !Sub "arn:${AWS::Partition}:s3:::ec2-windows-nvidia-drivers/*"
+                  - !Sub ['arn:${AWS::Partition}:s3:::${S3Bucket}/${QSS3KeyPrefix}*', S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]]
+                  - !Sub ['arn:${AWS::Partition}:s3:::${S3Bucket}', S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]]                              
         - PolicyName: WorkstationSecretsAccess
           PolicyDocument:
             Version: '2012-10-17'
@@ -319,11 +350,162 @@ Resources:
       Roles:
         - !Ref WorkstationAccessRole
 
+  PrimaryNode:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName: !Ref WorkstationAccessRole
+          buckets:
+            - !Ref QSS3BucketName
+            - 'ec2-windows-nvidia-drivers'
+      AWS::CloudFormation::Init:
+        Install:
+          commands:
+            a-install-vred:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\install-vred.ps1
+                    -S3Bucket '
+                  - !Ref MediaS3Bucket
+                  - ''' -KeyPrefix '''
+                  - !Ref MediaS3Key
+                  - '''"'
+            b-run-vred:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\run-vred.ps1
+                    -LicenseServer '
+                  - !Ref PrimaryNodeIP
+                  - ''' -CollaborationServer '''
+                  - !Ref PrimaryNodeIP
+                  - ''' -Scene '''
+                  - !Ref SceneAddress
+                  - '''"'
+          files:
+            C:\cfn\scripts\install-vred.ps1:
+              source:
+                !Sub
+                - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/install-vred.ps1
+                - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
+                  S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+            C:\cfn\scripts\installvred.ps1:
+              source:
+                !Sub
+                - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/installvred.ps1
+                - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
+                  S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+            C:\cfn\scripts\run-vred.ps1:
+              source:
+                !Sub
+                - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/run-vred.ps1
+                - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
+                  S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+            C:\cfn\scripts\vred-library.psm1:
+              source:
+                !Sub
+                - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/vred-library.psm1
+                - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
+                  S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+    Properties:
+      ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", NVIDIAWIN]
+      InstanceType: !Ref WorkloadInstanceType
+      NetworkInterfaces:
+        - DeleteOnTermination: true
+          DeviceIndex: '0'
+          SubnetId: !Ref 'PublicSubnetAID'
+          PrivateIpAddresses:
+            - Primary: true
+              PrivateIpAddress: !Ref 'PrimaryNodeIP'
+      BlockDeviceMappings:
+        - Ebs:
+            VolumeType: gp2
+            VolumeSize: !Ref CloudxrStorageVolumeSize
+            DeleteOnTermination: true
+            Encrypted: false
+          DeviceName: /dev/sda1
+      KeyName: !Ref KeyPairName
+      UserData:
+        !Base64
+          Fn::Join:
+          - ''
+          - - '<script>
 
+              '
+            - 'cfn-init.exe -v -c config -s '
+            - !Ref AWS::StackId
+            - ' -r PrimaryNode '
+            - ' --region '
+            - !Ref AWS::Region
+            - '
+              '
+            - </script>
 
 
   LaunchConfig:
     Type: "AWS::AutoScaling::LaunchConfiguration"
+    DependsOn: PrimaryNode
+    Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName: !Ref WorkstationAccessRole
+          buckets:
+            - !Ref QSS3BucketName
+            - 'ec2-windows-nvidia-drivers'
+      AWS::CloudFormation::Init:
+        Install:
+          commands:
+            a-install-vred:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\install-vred.ps1
+                    -S3Bucket '
+                  - !Ref MediaS3Bucket
+                  - ''' -KeyPrefix '''
+                  - !Ref MediaS3Key
+                  - '''"'
+            b-run-vred:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\run-vred.ps1
+                    -LicenseServer '
+                  - !Ref PrimaryNodeIP
+                  - ''' -CollaborationServer '''
+                  - !Ref PrimaryNodeIP
+                  - ''' -Scene '''
+                  - !Ref SceneAddress
+                  - '''"'
+          files:
+            C:\cfn\scripts\install-vred.ps1:
+              source:
+                !Sub
+                - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/install-vred.ps1
+                - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
+                  S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+            C:\cfn\scripts\installvred.ps1:
+              source:
+                !Sub
+                - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/installvred.ps1
+                - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
+                  S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+            C:\cfn\scripts\run-vred.ps1:
+              source:
+                !Sub
+                - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/run-vred.ps1
+                - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
+                  S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+            C:\cfn\scripts\vred-library.psm1:
+              source:
+                !Sub
+                - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/vred-library.psm1
+                - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
+                  S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
     Properties:
       AssociatePublicIpAddress: true
       KeyName: !Ref KeyPairName
@@ -332,12 +514,27 @@ Resources:
       SecurityGroups: [!Ref 'WorkstationSG']
       ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", NVIDIAWIN]
       BlockDeviceMappings:
-        - DeviceName: /dev/sda1
-          Ebs:
+        - Ebs:
             VolumeType: gp2
             VolumeSize: !Ref CloudxrStorageVolumeSize
-            DeleteOnTermination: 'true'
-            Encrypted: 'false'
+            DeleteOnTermination: true
+            Encrypted: false
+          DeviceName: /dev/sda1
+      UserData:
+        !Base64
+          Fn::Join:
+          - ''
+          - - '<script>
+
+              '
+            - 'cfn-init.exe -v -c config -s '
+            - !Ref AWS::StackId
+            - ' -r SecondaryNode '
+            - ' --region '
+            - !Ref AWS::Region
+            - '
+              '
+            - </script>
 
   WindowsNvidiaWorkstation:
     Type: "AWS::AutoScaling::AutoScalingGroup"
@@ -348,6 +545,6 @@ Resources:
           - !Ref PublicSubnetBID
           - !Ref PublicSubnetCID
         LaunchConfigurationName: !Ref 'LaunchConfig'
-        MinSize: 0
+        MinSize: '0'
         MaxSize: !Ref InstanceCount
         DesiredCapacity: !Ref InstanceCount

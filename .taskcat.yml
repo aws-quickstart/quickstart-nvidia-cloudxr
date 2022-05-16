@@ -1,0 +1,24 @@
+project:
+  name: quickstart-nvidia-cloudxr
+  owner: quickstart-eng@amazon.com
+  #marketplace-ami: true
+  s3_regional_buckets: true
+  regions:
+    - eu-central-1
+  s3_bucket: ''
+  template: templates/main.template.yaml
+tests:
+  default:
+    parameters:
+      AvailabilityZones: "$[taskcat_genaz_3]"
+      KeyPairName: "$[taskcat_getkeypair]"
+      PublicSubnet1CIDR: "10.0.128.0/20"
+      PublicSubnet2CIDR: "10.0.144.0/20"
+      PublicSubnet3CIDR: "10.0.160.0/20"
+      VPCCIDR: "10.0.0.0/16"
+      PublicRemoteCidr: 0.0.0.0/0
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3BucketRegion: $[taskcat_current_region]
+      SceneAddress: override
+    regions:
+      - eu-central-1
