@@ -8,6 +8,14 @@ Metadata:
       ignore_checks:
         - W9006
         - W9901
+  AWSAMIRegionMap:
+    Filters:
+      NVIDIAWIN:
+        name: cloudxr-agent-windows-2019-aws-market*
+        owner-alias: aws-marketplace
+        product-code.type: marketplace
+        product-code: bwhppj014bz7uf8lehfv4u8hs
+
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
@@ -15,9 +23,9 @@ Metadata:
       Parameters:
       - AvailabilityZones
       - VPCCIDR
-      - PublicSubnet1CIDR
-      - PublicSubnet2CIDR
-      - PublicSubnet3CIDR
+      - PublicSubnetAID
+      - PublicSubnetBID
+      - PublicSubnetCID
     - Label:
         default: Amazon EC2 configuration
       Parameters:
@@ -28,6 +36,7 @@ Metadata:
       - InstanceCount
       - PublicRemoteCidr 
       - PrimaryNodeIP
+      - LicenseServerIP
     - Label:
         default: VRED media configuration
       Parameters:
@@ -45,11 +54,11 @@ Metadata:
         default: Availability Zones
       VPCCIDR:
         default: VPC CIDR
-      PublicSubnet1CIDR:
+      PublicSubnetAID:
         default: Public subnet 1 CIDR
-      PublicSubnet2CIDR:
+      PublicSubnetBID:
         default: Public subnet 2 CIDR
-      PublicSubnet3CIDR:
+      PublicSubnetCID:
         default: Public subnet 3 CIDR
       QSS3BucketName:
         default: Quick Start S3 bucket name
@@ -71,6 +80,8 @@ Metadata:
         default: CIDR for customer access
       PrimaryNodeIP:
         default: Primary node IP address
+      LicenseServerIP:
+        default: Network License Manager IP Address
       MediaS3Bucket:
         default: VRED media S3 bucekt
       MediaS3Key:
@@ -79,6 +90,7 @@ Metadata:
         default: The address to a VRED scene file
 
 Parameters:
+
   AvailabilityZones:
     Description: Availability Zones to use for the subnets in the VPC.
       Three Availability Zones are used for this deployment, and the logical order of
@@ -90,19 +102,19 @@ Parameters:
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC.
     Type: String
-  PublicSubnet1CIDR:
+  PublicSubnetAID:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.128.0/20
     Description: CIDR block for the perimeter network located in Availability Zone 1.
     Type: String
-  PublicSubnet2CIDR:
+  PublicSubnetBID:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.144.0/20
     Description: CIDR block for the perimeter network located in Availability Zone 2.
     Type: String
-  PublicSubnet3CIDR:
+  PublicSubnetCID:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.160.0/20
@@ -155,6 +167,12 @@ Parameters:
     - g4dn.8xlarge
     - g4dn.12xlarge
     - g4dn.16xlarge
+    - g5.xlarge
+    - g5.2xlarge
+    - g5.4xlarge
+    - g5.8xlarge
+    - g5.12xlarge
+    - g5.16xlarge
     ConstraintDescription: Must contain valid instance type.
     Default: g4dn.2xlarge
     Description: Type of EC2 instance for the workload instances.
@@ -174,14 +192,14 @@ Parameters:
     MaxValue: 16000
     Description: Size of Cloudxr virtualized storage in GBs. 
   InstanceCount:
-    Description: Number of EC2 instances (must be between 1 and 5).
+    Description: Number of EC2 instances for collabration (Excludes Primary Node)
     Type: Number
     Default: 1
     MinValue: 1
     MaxValue: 10
     ConstraintDescription: Must be a number between 1 and 10.
   PublicRemoteCidr:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
     Default: 10.0.0.0/16
     Description: CIDR block for the Remote customers.
@@ -189,7 +207,12 @@ Parameters:
   PrimaryNodeIP:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
     Default: 10.0.128.100
-    Description: Primary private IP for the first cluster node located in Availability Zone 1.
+    Description: Primary private IP for the first cluster node located in Availability Zone 1 - Prefer PublicsubnetAID.
+    Type: String
+  LicenseServerIP:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.128.109
+    Description: IP Adrress for VRED NLM Server
     Type: String
   MediaS3Bucket:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -216,7 +239,49 @@ Parameters:
 #      Cloudxr2_1: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-2.1.29897464-vgpu-12.1
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  
+Mappings:
+  AWSAMIRegionMap:
+    us-east-1:
+      NVIDIAWIN: ami-024836fc2e856676b
+    us-east-2:
+      NVIDIAWIN: ami-02bbf726b4e66cadc
+    us-west-1:
+      NVIDIAWIN: ami-0269a87b420e24bbf
+    us-west-2:
+      NVIDIAWIN: ami-08f6a1cc3966e7664
+    ca-central-1:
+      NVIDIAWIN: ami-03b9561bfc9ce6bdc
+    eu-central-1:
+      NVIDIAWIN: ami-0d5bdeb093b8ca54a
+    eu-west-1:
+      NVIDIAWIN: ami-03754291a37e198cf
+    eu-west-2:
+      NVIDIAWIN: ami-010d42951441feca5
+    eu-west-3:
+      NVIDIAWIN: ami-026d2bcf50ded8b2c
+    eu-north-1:
+      NVIDIAWIN: ami-0388133a2e99c28aa
+    eu-south-1:
+      NVIDIAWIN: ami-0e73ac91962153a03
+    ap-southeast-1:
+      NVIDIAWIN: ami-0d087e2dc27fcfb0c
+    ap-southeast-2:
+      NVIDIAWIN: ami-0cf4fae68ca884e0f
+    ap-south-1:
+      NVIDIAWIN: ami-0705d258c19d56587
+    ap-northeast-1:
+      NVIDIAWIN: ami-00ce76c6f171959ab
+    ap-northeast-2:
+      NVIDIAWIN: ami-044719835f814b445
+    ap-east-1:
+      NVIDIAWIN: ami-037bcd057531ecf02
+    sa-east-1:
+      NVIDIAWIN: ami-080198dd0f2e9b7cf
+    me-south-1:
+      NVIDIAWIN: ami-09f252ba46cca63e5
+    af-south-1:
+      NVIDIAWIN: ami-02ceb301b599fb738
+
 Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
@@ -233,9 +298,9 @@ Resources:
           - Ref: AvailabilityZones
         NumberOfAZs: '3'
         VPCCIDR: !Ref VPCCIDR
-        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
-        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
-        PublicSubnet3CIDR: !Ref PublicSubnet3CIDR
+        PublicSubnet1CIDR: !Ref PublicSubnetAID
+        PublicSubnet2CIDR: !Ref PublicSubnetBID
+        PublicSubnet3CIDR: !Ref PublicSubnetCID
         CreatePrivateSubnets: 'false'
         CreateNATGateways: 'false'
           
@@ -262,6 +327,7 @@ Resources:
         InstanceCount: !Ref InstanceCount
         PublicRemoteCidr: !Ref PublicRemoteCidr
         PrimaryNodeIP: !Ref PrimaryNodeIP
+        LicenseServerIP: !LicenseServerIP
         MediaS3Bucket: !Ref MediaS3Bucket
         MediaS3Key: !Ref MediaS3Key
         SceneAddress: !Ref SceneAddress
