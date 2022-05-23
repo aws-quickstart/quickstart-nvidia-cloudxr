@@ -36,6 +36,7 @@ Metadata:
       - InstanceCount
       - PublicRemoteCidr
       - PrimaryNodeIP
+      - LicenseServerIP
     - Label:
         default: VRED media configuration
       Parameters:
@@ -49,8 +50,10 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
+      AvailabilityZones:
+        default: Availability Zones
       VPCID:
-        default: VPC CIDR
+        default: VPC ID
       PublicSubnetAID:
         default: Public subnet 1 CIDR
       PublicSubnetBID:
@@ -77,6 +80,8 @@ Metadata:
         default: CIDR for customer access
       PrimaryNodeIP:
         default: Primary node IP address
+      LicenseServerIP:
+        default: Network License Manager IP Address
       MediaS3Bucket:
         default: VRED media S3 bucekt
       MediaS3Key:
@@ -84,6 +89,11 @@ Metadata:
       SceneAddress:
         default: The address to a VRED scene file
 Parameters:
+  AvailabilityZones:
+    Description: Availability Zones to use for the subnets in the VPC.
+      Three Availability Zones are used for this deployment, and the logical order of
+      your selections is preserved.
+    Type: List<AWS::EC2::AvailabilityZone::Name>
   VPCID:
     Description: ID of your existing VPC for deployment
     Type: String
@@ -170,14 +180,14 @@ Parameters:
     MaxValue: 16000
     Description: Size of Cloudxr virtualized storage in GBs.
   InstanceCount:
-    Description: Number of EC2 instances (must be between 1 and 10).
+    Description: Number of EC2 instances for collabration (Excludes Primary Node).
     Type: Number
     Default: 1
     MinValue: 1
     MaxValue: 10
     ConstraintDescription: Must be a number between 1 and 10.
   PublicRemoteCidr:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
     Default: 0.0.0.0/16
     Description: CIDR block for the Remote customers.
@@ -186,6 +196,11 @@ Parameters:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
     Default: 10.0.128.100
     Description: Primary private IP for the first cluster node located in Availability Zone 1.
+    Type: String
+  LicenseServerIP:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.128.100
+    Description: IP Adrress for VRED NLM Server
     Type: String
   MediaS3Bucket:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -204,6 +219,7 @@ Parameters:
   SceneAddress:
     Description: The address to a VRED scene file. It can be an URI or a path in a AWS S3 bucket.
     Type: String
+
 
 Mappings:
   AWSAMIRegionMap:
@@ -333,7 +349,9 @@ Resources:
                   - !Sub "arn:${AWS::Partition}:s3:::ec2-windows-nvidia-drivers"
                   - !Sub "arn:${AWS::Partition}:s3:::ec2-windows-nvidia-drivers/*"
                   - !Sub ['arn:${AWS::Partition}:s3:::${S3Bucket}/${QSS3KeyPrefix}*', S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]]
-                  - !Sub ['arn:${AWS::Partition}:s3:::${S3Bucket}', S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]]                              
+                  - !Sub ['arn:${AWS::Partition}:s3:::${S3Bucket}', S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]]
+                  - !Sub ['arn:${AWS::Partition}:s3:::${MediaS3Bucket}/*']
+                  - !Sub ['arn:${AWS::Partition}:s3:::${MediaS3Bucket}']
         - PolicyName: WorkstationSecretsAccess
           PolicyDocument:
             Version: '2012-10-17'
@@ -346,6 +364,7 @@ Resources:
   WorkstationAccessProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
+      InstanceProfileName: VREDRole
       Path: /
       Roles:
         - !Ref WorkstationAccessRole
@@ -379,9 +398,11 @@ Resources:
                 - ''
                 - - powershell.exe -Command "C:\cfn\scripts\run-vred.ps1
                     -LicenseServer '
-                  - !Ref PrimaryNodeIP
+                  - !Ref LicenseServerIP
                   - ''' -CollaborationServer '''
                   - !Ref PrimaryNodeIP
+                  - ''' -S3Bucket '''
+                  - !Ref MediaS3Bucket
                   - ''' -Scene '''
                   - !Ref SceneAddress
                   - '''"'
@@ -413,6 +434,7 @@ Resources:
     Properties:
       ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", NVIDIAWIN]
       InstanceType: !Ref WorkloadInstanceType
+      IamInstanceProfile: !Ref WorkstationAccessProfile
       NetworkInterfaces:
         - DeleteOnTermination: true
           DeviceIndex: '0'
@@ -475,9 +497,11 @@ Resources:
                 - ''
                 - - powershell.exe -Command "C:\cfn\scripts\run-vred.ps1
                     -LicenseServer '
-                  - !Ref PrimaryNodeIP
+                  - !Ref LicenseServerIP
                   - ''' -CollaborationServer '''
                   - !Ref PrimaryNodeIP
+                  - ''' -S3Bucket '''
+                  - !Ref MediaS3Bucket
                   - ''' -Scene '''
                   - !Ref SceneAddress
                   - '''"'

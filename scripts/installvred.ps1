@@ -18,7 +18,7 @@
  * Run python script to connect VRED to a collaboration session
 .EXAMPLE
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-.\vred-core.ps1 2080@212.227.12.188 http://dam.eitido.de/genesis.vpb
+
 #> 
 Param (
   [parameter(Mandatory=$true, HelpMessage="The address of the ADSK license server.")]
