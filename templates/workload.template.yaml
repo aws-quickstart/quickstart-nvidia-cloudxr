@@ -1,4 +1,4 @@
-AAWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: '2010-09-09'
 Description:
   This template deploys an EC2 instnace using the Nvidia Windows Marketplace AMI in an existing VPC (qs-1t26ph9er)
 
@@ -576,5 +576,3 @@ Resources:
         MinSize: '0'
         MaxSize: !Ref InstanceCount
         DesiredCapacity: !Ref InstanceCount
-
-
