@@ -271,7 +271,7 @@ Mappings:
 #      Cloudxr3: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.1-vgpu-13.1
 #     Cloudxr2: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-2.1.29897464-vgpu-12.1
 Conditions:
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart-vred-cloudxr']
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 
 Resources:
   WorkstationSG:
@@ -383,6 +383,9 @@ Resources:
             - !Ref QSS3BucketName
             - 'ec2-windows-nvidia-drivers'
       AWS::CloudFormation::Init:
+        configSets:
+          setup:
+            - Install
         Install:
           commands:
             a-install-vred:
@@ -462,7 +465,7 @@ Resources:
           - - '<script>
 
               '
-            - 'cfn-init.exe -v -c config -s '
+            - 'cfn-init.exe -v --configsets setup -s '
             - !Ref AWS::StackId
             - ' -r PrimaryNode '
             - ' --region '
@@ -484,6 +487,9 @@ Resources:
             - !Ref QSS3BucketName
             - 'ec2-windows-nvidia-drivers'
       AWS::CloudFormation::Init:
+        configSets:
+          setup:
+            - Install
         Install:
           commands:
             a-install-vred:
@@ -556,7 +562,7 @@ Resources:
           - - '<script>
 
               '
-            - 'cfn-init.exe -v -c config -s '
+            - 'cfn-init.exe -v --configsets setup -s '
             - !Ref AWS::StackId
             - ' -r SecondaryNode '
             - ' --region '
