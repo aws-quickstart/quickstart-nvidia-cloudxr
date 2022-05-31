@@ -98,7 +98,6 @@ Parameters:
   VPCID:
     Description: ID of your existing VPC for deployment
     Type: String
-
   PublicSubnetAID:
     Description: ID of public subnet in Availability Zone 1.
       for the first node (e.g., subnet-a0246dcd).
@@ -116,7 +115,6 @@ Parameters:
     ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a
       hyphen (-).
-
     Description: Name of the S3 bucket for your copy of the Quick Start assets.
       Keep the default name unless you are customizing the template.
       Changing the name updates code references to point to a new Quick
@@ -150,7 +148,6 @@ Parameters:
     Description: Name of an existing EC2 key pair. The instance will launch with
       this key pair.
     Type: AWS::EC2::KeyPair::KeyName
-
   WorkloadInstanceType:
     AllowedValues:
     - g4dn.xlarge
@@ -219,7 +216,6 @@ Parameters:
   SceneAddress:
     Description: The address to a VRED scene file. It can be an URI or a path in a AWS S3 bucket.
     Type: String
-
 
 Mappings:
   AWSAMIRegionMap:
