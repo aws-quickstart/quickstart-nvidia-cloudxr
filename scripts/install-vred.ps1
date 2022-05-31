@@ -25,7 +25,7 @@ Param (
   $SecretKey
 )
 
-Import-Module -Name .\vred-library.psm1 -Force
+Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
 
 # Create tempoary folder
 $tempPath = New-TempFolder
@@ -37,12 +37,12 @@ if (![string]::IsNullOrWhiteSpace($AccessKey) -or ![string]::IsNullOrWhiteSpace(
   # Copy VRED Core installer files
   Copy-S3Object -BucketName $S3Bucket -KeyPrefix $KeyPrefix -LocalFolder $tempPath -AccessKey $AccessKey -SecretKey $SecretKey
   # Copy SteamVR
-  Copy-S3Object -BucketName $S3Bucket -Key "SteamVR.zip" -LocalFolder $tempPath -AccessKey $AccessKey -SecretKey $SecretKey
+  #Copy-S3Object -BucketName $S3Bucket -Key "SteamVR.zip" -LocalFolder $tempPath -AccessKey $AccessKey -SecretKey $SecretKey
 } else {
   # Copy VRED Core installer files
   Copy-S3Object -BucketName $S3Bucket -KeyPrefix $KeyPrefix -LocalFolder $tempPath
   # Copy SteamVR
-  Copy-S3Object -BucketName $S3Bucket -Key "SteamVR.zip" -LocalFolder $tempPath
+  #Copy-S3Object -BucketName $S3Bucket -Key "SteamVR.zip" -LocalFolder $tempPath
 }
 
 # Find sfx files of VRED Core installer and sort them alphabetically
@@ -56,7 +56,7 @@ if ($vredInstArchives.count -eq 0) {
 # Extract sfx of VRED Core installer
 $vredInstSfx = $vredInstArchives[0]
 Write-Output "Extract VRED Core installer '$vredInstSfx'."
-Start-Process -FilePath $vredInstSfx -ArgumentList "-suppresslaunch -d C:\Autodesk"
+Start-Process -FilePath $vredInstSfx -ArgumentList "-suppresslaunch -d C:\Autodesk" -Wait
 
 # Find extraction folder
 # Expects Autodesk extracted installer folder e.g. Autodesk_VREDCOR_2023_0_0_Enu_Win_64bit_dlm
