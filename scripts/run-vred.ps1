@@ -41,7 +41,7 @@ Param (
   $Version = "15.0"
 )
 
-Import-Module -Name .\vred-library.psm1 -Force
+Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
 
 # Add Type System.Web if not already added
 try {

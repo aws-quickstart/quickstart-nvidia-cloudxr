@@ -25,7 +25,7 @@ Param (
   $SecretKey
 )
 
-Import-Module -Name .\vred-library.psm1 -Force
+Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
 
 # Create tempoary folder
 $tempPath = New-TempFolder
