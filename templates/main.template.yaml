@@ -37,6 +37,7 @@ Metadata:
       - PublicRemoteCidr 
       - PrimaryNodeIP
       - LicenseServerIP
+      - VredInstanceTag
     - Label:
         default: VRED media configuration
       Parameters:
@@ -68,6 +69,8 @@ Metadata:
         default: Quick Start S3 key prefix
       WorkloadInstanceType:
         default: Workload servers instance type
+      VredInstanceTag:
+        default: Tag value for VRED Instance
 #      CloudxrAMI:
 #        default: Workload servers Cloudxr version
       CloudxrStorageVolumeSize:
@@ -184,6 +187,10 @@ Parameters:
 #    AllowedValues:
 #      - Cloudxr3_1
 #      - Cloudxr2_1
+  VredInstanceTag:
+    Type: String
+    Default: VRED
+    Description: Tag Value for VRED Instances
   CloudxrStorageVolumeSize:
     Type: Number
     Default: 200
@@ -331,4 +338,4 @@ Resources:
         MediaS3Bucket: !Ref MediaS3Bucket
         MediaS3Key: !Ref MediaS3Key
         SceneAddress: !Ref SceneAddress
-    
+        VredInstanceTag: !Ref VredInstanceTag
