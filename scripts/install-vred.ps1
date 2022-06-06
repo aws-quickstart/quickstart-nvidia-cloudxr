@@ -69,7 +69,7 @@ if ($vredInstDirs.count -eq 0) {
 # Start installation of VRED Core
 $vredInstPath = Join-Path $vredInstDirs[0] "deploymentInstall.bat"
 Write-Output "Run VRED Core installer '$vredInstPath'."
-Start-Process -FilePath $vredInstPath
+Start-Process -FilePath $vredInstPath -Wait
 Write-Output "VRED Core installation completed."
 
 # Extract SteamVR files

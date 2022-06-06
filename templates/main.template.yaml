@@ -26,17 +26,18 @@ Metadata:
       - PublicSubnet1CIDR
       - PublicSubnet2CIDR
       - PublicSubnet3CIDR
+      - PublicRemoteCidr
     - Label:
-        default: Amazon EC2 configuration
+        default: VRED Amazon EC2 configuration
       Parameters:
       - WorkloadInstanceType
 #      - CloudxrAMI
       - CloudxrStorageVolumeSize
       - KeyPairName
       - InstanceCount
-      - PublicRemoteCidr 
       - PrimaryNodeIP
       - LicenseServerIP
+      - VredInstanceTag
     - Label:
         default: VRED media configuration
       Parameters:
@@ -68,6 +69,8 @@ Metadata:
         default: Quick Start S3 key prefix
       WorkloadInstanceType:
         default: Workload servers instance type
+      VredInstanceTag:
+        default: Tag value for VRED Instance
 #      CloudxrAMI:
 #        default: Workload servers Cloudxr version
       CloudxrStorageVolumeSize:
@@ -184,6 +187,10 @@ Parameters:
 #    AllowedValues:
 #      - Cloudxr3_1
 #      - Cloudxr2_1
+  VredInstanceTag:
+    Type: String
+    Default: VRED
+    Description: Tag Value for VRED Instances
   CloudxrStorageVolumeSize:
     Type: Number
     Default: 200
@@ -219,13 +226,11 @@ Parameters:
     ConstraintDescription: The bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a 
       hyphen (-).
-    Default: aws-quickstart
     Description: S3 bucket containing VRED installation media
     Type: String
   MediaS3Key:
     ConstraintDescription: The Quick Start key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), and forward slashes (/).
-    Default: quickstart-nvidia-cloudxr/SteamVR.zip
     Description: S3 key for installation media
     Type: String
   SceneAddress:
@@ -331,4 +336,4 @@ Resources:
         MediaS3Bucket: !Ref MediaS3Bucket
         MediaS3Key: !Ref MediaS3Key
         SceneAddress: !Ref SceneAddress
-    
+        VredInstanceTag: !Ref VredInstanceTag

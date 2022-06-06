@@ -20,7 +20,6 @@ Metadata:
     - Label:
         default: VPC configuration
       Parameters:
-      - AvailabilityZones
       - VPCID
       - PublicSubnetAID
       - PublicSubnetBID
@@ -38,6 +37,7 @@ Metadata:
       - PublicRemoteCidr
       - PrimaryNodeIP
       - LicenseServerIP
+      - VredInstanceTag
     - Label:
         default: VRED media configuration
       Parameters:
@@ -51,8 +51,6 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-      AvailabilityZones:
-        default: Availability Zones
       VPCID:
         default: VPC ID
       PublicSubnetAID:
@@ -69,6 +67,8 @@ Metadata:
         default: Quick Start S3 key prefix
       WorkloadInstanceType:
         default: Workload servers instance type
+      VredInstanceTag:
+        default: Tag value for VRED Instance
 #      CloudxrAMI:
 #        default: Workload servers Cloudxr version
       CloudxrStorageVolumeSize:
@@ -90,14 +90,9 @@ Metadata:
       SceneAddress:
         default: The address to a VRED scene file
 Parameters:
-  AvailabilityZones:
-    Description: Availability Zones to use for the subnets in the VPC.
-      Three Availability Zones are used for this deployment, and the logical order of
-      your selections is preserved.
-    Type: List<AWS::EC2::AvailabilityZone::Name>
   VPCID:
-    Description: ID of your existing VPC for deployment
-    Type: String
+    Description: ID of your existing VPC for deployment(VPC must have internet connectivity)
+    Type: AWS::EC2::VPC::Id
   PublicSubnetAID:
     Description: ID of public subnet in Availability Zone 1.
       for the first node (e.g., subnet-a0246dcd).
@@ -131,12 +126,12 @@ Parameters:
     When using your own bucket, specify the Region.
     See https://aws-quickstart.github.io/option1.html.'
     Type: String
+
   QSS3KeyPrefix:
     AllowedPattern: ^[0-9a-zA-Z-/]*$
     ConstraintDescription: The Quick Start S3 key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), and forward slashes (/). The prefix should
       end with a forward slash (/).
-    Default: quickstart-nvidia-cloudxr/
     Description: S3 key prefix that is used to simulate a folder for your copy of the
       Quick Start assets. Keep the default prefix unless you are customizing
       the template. Changing this prefix updates code references to point to
@@ -180,6 +175,10 @@ Parameters:
     MinValue: 1
     MaxValue: 16000
     Description: Size of Cloudxr virtualized storage in GBs.
+  VredInstanceTag:
+    Type: String
+    Default: VRED
+    Description: Tag Value for VRED Instances
   InstanceCount:
     Description: Number of EC2 instances for collabration (Excludes Primary Node).
     Type: Number
@@ -195,7 +194,7 @@ Parameters:
     Type: String
   PrimaryNodeIP:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
-    Default: 10.0.0.59
+    Default: 11.0.0.69
     Description: Primary private IP for the first cluster node located in Availability Zone 1.
     Type: String
   LicenseServerIP:
@@ -435,6 +434,9 @@ Resources:
       ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", NVIDIAWIN]
       InstanceType: !Ref WorkloadInstanceType
       IamInstanceProfile: !Ref WorkstationAccessProfile
+      Tags:
+        - Key: Environment
+          Value: !Ref VredInstanceTag
       NetworkInterfaces:
         - DeleteOnTermination: true
           DeviceIndex: '0'
@@ -558,7 +560,7 @@ Resources:
               '
             - 'cfn-init.exe -v --configsets setup -s '
             - !Ref AWS::StackId
-            - ' -r SecondaryNode '
+            - ' -r LaunchConfig '
             - ' --region '
             - !Ref AWS::Region
             - '
@@ -576,3 +578,27 @@ Resources:
         MinSize: '0'
         MaxSize: !Ref InstanceCount
         DesiredCapacity: !Ref InstanceCount
+        Tags:
+          - Key: Environment
+            PropagateAtLaunch: true
+            Value: !Ref VredInstanceTag
+
+Outputs:
+  VredInstanceID:
+    Description: EC2 Instance ID
+    Value: !Ref PrimaryNode
+  VredSecurityGroup:
+    Description: Security Group For VRED Instances
+    Value: !GetAtt WorkstationSG.GroupId
+  VredPrimaryNodeURL:
+    Description: Url to Access VRED Primary Node(login as administrator)
+    Value: !Sub "https://${PrimaryNode.PublicIp}:8443"
+  VredAutoScalingGroup:
+    Description: Auto Scaling Group Details
+    Value: !Ref WindowsNvidiaWorkstation
+  DCVdownload:
+    Description: DCV client download
+    Value: https://download.nice-dcv.com/latest.html
+
+
+
