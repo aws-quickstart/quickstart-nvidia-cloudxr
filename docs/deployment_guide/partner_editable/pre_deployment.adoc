@@ -1,0 +1,53 @@
+//Include any predeployment steps here, such as signing up for a Marketplace AMI or making any changes to a partner account. If there are no predeployment steps, leave this file empty.
+
+== Predeployment steps
+
+=== Subscribe to CloudXR Marketplace offering
+
+*Instructions to get Cloudxr AMI from marketplace*
+
+Using the NVIDIA CloudXR AMI Introductory Offer - WinServer 2019 eases installation and delivery of NVIDIA CloudXR . Deploying the Marketplace offering provides the following software and AWS instance configurations: CloudXR Server installer and documentation NICE DCV remote desktop access for developers and non-VR users NICE DCV virtual audio driver—used by CloudXR.
+
+Navigate to https://aws.amazon.com/marketplace[AWS Marketplace] and search for CloudXR to find the latest listing. Review the details and make a note of the instance size, AWS Pricing, usage, and other details. Select Continue to Subscribe. 
+
+**Click https://aws.amazon.com/marketplace/pp/prodview-galujeez5ljra[here] to access the AWS/CloudXR Marketplace AMI Listing.
+
+Accept the Terms and Conditions to activate the subscription (this may take a few minutes). When finished, an effective date will be displayed.
+
+=== Obtain  binaries of SteamVR and VRED CORE
+
+* Install and open the Steam Client (https://store.steampowered.com/about/) on a PC with full internet access.
+* In the Steam Client, open the Library section and find the part of it labeled "Tools".
+* Find the entry "SteamVR" and install it.
+* Right-click on the entry "SteamVR" and in the resulting popup menu click on the entry "Properties".
+* A new window with multiple tabs will open. Select the tab "LOCAL FILES" and click on the button labeled "BROWSE LOCAL FILES".
+* The directory containing the SteamVR Runtime will open. Compress  this entire directory onto folder and name it SteamVR.zip. We will be using this binary to install Steam VR.
+
+=== Setup EC2 for Network License management
+
+* Create an elastic network interface with a fixed MAC address 
+* Create an instance from a preconfigured AMI or a fresh Windows 10 or 11 
+* Download and install the Autodesk Network License Manager (https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software)
+* Create a license based on the NLM server name and the MAC address of the ENI 
+* Setup license file for NLM via LMTools 
+
+===  Get Autodesk VRED Core Binaries
+
+* Open https://manage.autodesk.com (https://manage.autodesk.com/) on your browser.
+* Sign in with your Autodesk credentials.
+* Click on "All Products and Services" on the left.
+* Choose VRED Core and click "View downloads".
+* Click on "View all" below the "Install now" button.
+* Choose "Browser Download" and click on the button.
+* Click "Start download" on the popup the opens.
+* Disable browser pop-up blockers before downloading.
+* Copy all installer *.sfx.exe files to your AWS S3 bucket.
+
+[#predeployment1]
+image::../docs/deployment_guide/images/image1.png[predeployment1]
+
+[#predeployment2]
+image::../docs/deployment_guide/images/image2.png[predeployment2]
+
+[#predeployment3]
+image::../docs/deployment_guide/images/image3.png[predeployment3]
