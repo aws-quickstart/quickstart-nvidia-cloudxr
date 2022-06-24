@@ -34,20 +34,16 @@ $tempPath = New-TempFolder
 # Find documentation here: https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/AmazonS3.html
 Write-Output "Copy installer files from AWS S3 bucket '$S3Bucket' to local temp folder '$tempPath'"
 if (![string]::IsNullOrWhiteSpace($AccessKey) -or ![string]::IsNullOrWhiteSpace($SecretKey)) {
-  # Copy VRED Core installer files
+  # Copy installer files
   Copy-S3Object -BucketName $S3Bucket -KeyPrefix $KeyPrefix -LocalFolder $tempPath -AccessKey $AccessKey -SecretKey $SecretKey
-  # Copy SteamVR
-  #Copy-S3Object -BucketName $S3Bucket -Key "SteamVR.zip" -LocalFolder $tempPath -AccessKey $AccessKey -SecretKey $SecretKey
 } else {
-  # Copy VRED Core installer files
+  # Copy installer files
   Copy-S3Object -BucketName $S3Bucket -KeyPrefix $KeyPrefix -LocalFolder $tempPath
-  # Copy SteamVR
-  #Copy-S3Object -BucketName $S3Bucket -Key "SteamVR.zip" -LocalFolder $tempPath
 }
 
 # Find sfx files of VRED Core installer and sort them alphabetically
 # Expects Autodesk sfx installer files e.g. Autodesk_VREDCOR_2023_0_0_Enu_Win_64bit_dlm_001_002.sfx.exe
-$vredInstArchives = @(Get-Childitem -Path $tempPath -Filter "Autodesk_VREDCOR*.sfx.exe" | ForEach-Object {"$($_.FullName)"} | sort)
+$vredInstArchives = @(Get-Childitem -Path $tempPath -Filter "Autodesk_VREDCOR*.sfx.exe" | ForEach-Object {"$($_.FullName)"} | Sort-Object)
 if ($vredInstArchives.count -eq 0) {  
   Write-Output "No Autodesk VRED Core Installer archives found."
   exit 1
@@ -64,6 +60,15 @@ $vredInstDirs = @(Get-Childitem -Path "C:\Autodesk" -Filter "Autodesk_VREDCOR*" 
 if ($vredInstDirs.count -eq 0) {  
   Write-Output "No Autodesk VRED Core Installer directories found."
   exit 1
+}
+
+# Remove the unnecessary AdSSO package from the installer as a workaround to fix an installation failure that occurs from time to time
+try {
+  $manifestFile = Join-Path $vredInstDirs[0] "manifest\app.vredcore.xml"
+  $packageRegex = '<Package.+?(?=name="AdSSO").+?(?=/>)/>'
+  (Get-Content $manifestFile) -replace $packageRegex, '' | Set-Content $manifestFile
+} catch {
+  Write-Output "Error removing AdSSO package from VRED Core installer."
 }
 
 # Start installation of VRED Core
