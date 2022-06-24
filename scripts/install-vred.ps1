@@ -6,8 +6,8 @@
 .COPYRIGHT Autodesk, Inc. All Rights Reserved.
 #>
 
-<# 
-.DESCRIPTION 
+<#
+.DESCRIPTION
  A script to install SteamVR and VRED Core on an AWS EC2 Windows instance.
 #>
 Param (
@@ -44,7 +44,7 @@ if (![string]::IsNullOrWhiteSpace($AccessKey) -or ![string]::IsNullOrWhiteSpace(
 # Find sfx files of VRED Core installer and sort them alphabetically
 # Expects Autodesk sfx installer files e.g. Autodesk_VREDCOR_2023_0_0_Enu_Win_64bit_dlm_001_002.sfx.exe
 $vredInstArchives = @(Get-Childitem -Path $tempPath -Filter "Autodesk_VREDCOR*.sfx.exe" | ForEach-Object {"$($_.FullName)"} | Sort-Object)
-if ($vredInstArchives.count -eq 0) {  
+if ($vredInstArchives.count -eq 0) {
   Write-Output "No Autodesk VRED Core Installer archives found."
   exit 1
 }
@@ -57,7 +57,7 @@ Start-Process -FilePath $vredInstSfx -ArgumentList "-suppresslaunch -d C:\Autode
 # Find extraction folder
 # Expects Autodesk extracted installer folder e.g. Autodesk_VREDCOR_2023_0_0_Enu_Win_64bit_dlm
 $vredInstDirs = @(Get-Childitem -Path "C:\Autodesk" -Filter "Autodesk_VREDCOR*" -Directory | ForEach-Object {"$($_.FullName)"})
-if ($vredInstDirs.count -eq 0) {  
+if ($vredInstDirs.count -eq 0) {
   Write-Output "No Autodesk VRED Core Installer directories found."
   exit 1
 }
