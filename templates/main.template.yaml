@@ -332,7 +332,7 @@ Resources:
         InstanceCount: !Ref InstanceCount
         PublicRemoteCidr: !Ref PublicRemoteCidr
         PrimaryNodeIP: !Ref PrimaryNodeIP
-        LicenseServerIP: !LicenseServerIP
+        LicenseServerIP: !Ref LicenseServerIP
         MediaS3Bucket: !Ref MediaS3Bucket
         MediaS3Key: !Ref MediaS3Key
         SceneAddress: !Ref SceneAddress
