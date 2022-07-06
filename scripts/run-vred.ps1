@@ -6,9 +6,9 @@
 .COPYRIGHT Autodesk, Inc. All Rights Reserved.
 #>
 
-<# 
-.DESCRIPTION 
- A script to start VRED Core on an AWS EC2 Windows instance. 
+<#
+.DESCRIPTION
+ A script to start VRED Core on an AWS EC2 Windows instance.
  It handles the following tasks:
  * Set the license server Autodesk VRED
  * Download a VRED scene file to a temporary directory or
@@ -16,7 +16,7 @@
  * Start VRED Core with scene file
  * Run python script to switch display mode as soon a HMD is available
  * Run python script to connect VRED to a collaboration session
-#> 
+#>
 Param (
   [parameter(Mandatory=$true, HelpMessage="The address of the ADSK license server.")]
   [String]
@@ -56,14 +56,11 @@ Set-AdskLicense $LicenseServer
 # Create temp folder
 $tempPath = New-TempFolder
 
-# Extract filename from scene address
-$sceneFilename = Split-Path -Path $Scene -Leaf
-
 # Path to scene file in temp folder
-$scenePath = Join-Path $tempPath $sceneFilename
+$scenePath = Join-Path $tempPath $Scene
 
 # Copy scene file from AWS S3 bucket or web server to temporary directory
-if (![string]::IsNullOrWhiteSpace($S3Bucket)) {  
+if (![string]::IsNullOrWhiteSpace($S3Bucket)) {
   Write-Output "Copy scene file from AWS S3 bucket '$S3Bucket' to local temp folder"
 
   if (![string]::IsNullOrWhiteSpace($AccessKey) -or ![string]::IsNullOrWhiteSpace($SecretKey)) {
@@ -73,9 +70,14 @@ if (![string]::IsNullOrWhiteSpace($S3Bucket)) {
   }
 } elseif (Test-UriScheme($Scene, @("http", "https"))) {
   Write-Output "Download scene file from '$Scene' to local temp folder"
-  
+
   # Improve download performance by disabling the display of progress
   $ProgressPreference = 'SilentlyContinue'
+
+  # Extract filename from scene address and update path
+  $sceneFilename = Split-Path -Path $Scene -Leaf
+  $scenePath = Join-Path $tempPath $sceneFilename
+
   Invoke-WebRequest $Scene -OutFile $scenePath
 }
 
