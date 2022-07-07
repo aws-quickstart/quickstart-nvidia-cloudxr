@@ -48,7 +48,7 @@ function Join-VredCollaboration {
   )
 
   Write-Output "VRED Core join collaboration session $Address"
-  
+
   try {
     # A script to change the display mode to open vr as soon as an Hmd is active
     $script = 'vrSessionService.join("' + $Address + '", userName="' + $UserName + '", color=PySide2.QtGui.Qt.transparent, roomName="AWS", passwd="", forceVersion=False)'
@@ -79,10 +79,10 @@ function Set-AdskLicense {
     $LicenseServer
   )
 
-  Write-Output "Change license server to $LicenseServer" 
-  
+  Write-Output "Change license server to $LicenseServer"
+
   try {
-    Start-Process -FilePath "C:\Program Files (x86)\Common Files\Autodesk Shared\AdskLicensing\Current\helper\AdskLicensingInstHelper.exe" -ArgumentList "change --pk 887N1 --pv 2022.0.0.F -lm NETWORK -ls $LicenseServer"
+    Start-Process -FilePath "C:\Program Files (x86)\Common Files\Autodesk Shared\AdskLicensing\Current\helper\AdskLicensingInstHelper.exe" -ArgumentList "change --pk 887O1 --pv 2023.0.0.F -lm NETWORK -ls $LicenseServer" -Wait
   } catch [InvalidOperationException] {
     Write-Output "Change license server failed"
     Write-Host -ForegroundColor Red $_
