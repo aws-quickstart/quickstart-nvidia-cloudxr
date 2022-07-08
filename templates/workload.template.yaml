@@ -353,6 +353,15 @@ Resources:
                   - secretsmanager:GetSecretValue
                   - secretsmanager:DescribeSecret
                 Resource: "*"
+        - PolicyName: NiceDCVLicense
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub "arn:aws:s3:::dcv-license.${AWS::Region}/*"
+
   WorkstationAccessProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
