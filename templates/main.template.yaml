@@ -299,3 +299,21 @@ Resources:
         MediaS3Key: !Ref MediaS3Key
         SceneAddress: !Ref SceneAddress
         VredInstanceTag: !Ref VredInstanceTag
+
+Outputs:
+  VredInstanceID:
+    Description: EC2 Instance ID
+    Value: !GetAtt WorkloadStack.Outputs.VredInstanceID
+  VredSecurityGroup:
+    Description: Security Group For VRED Instances
+    Value: !GetAtt WorkloadStack.Outputs.VredSecurityGroup
+  VredPrimaryNodeURL:
+    Description: Url to Access VRED Primary Node(login as administrator)
+    Value: !GetAtt WorkloadStack.Outputs.VredPrimaryNodeURL
+  VredAutoScalingGroup:
+    Description: Auto Scaling Group Details
+    Value: !GetAtt WorkloadStack.Outputs.VredAutoScalingGroup
+  NiceDCVdownload:
+    Description: NICE DCV client download url
+    Value: !GetAtt WorkloadStack.Outputs.NiceDCVdownload
+

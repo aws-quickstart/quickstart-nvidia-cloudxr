@@ -594,6 +594,6 @@ Outputs:
   VredAutoScalingGroup:
     Description: Auto Scaling Group Details
     Value: !Ref WindowsNvidiaWorkstation
-  DCVdownload:
+  NiceDCVdownload:
     Description: Nice DCV client download url
     Value: https://download.nice-dcv.com/latest.html
