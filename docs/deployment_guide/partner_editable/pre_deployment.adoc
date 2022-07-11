@@ -14,7 +14,15 @@ Navigate to https://aws.amazon.com/marketplace[AWS Marketplace] and search for C
 
 Accept the Terms and Conditions to activate the subscription (this may take a few minutes). When finished, an effective date will be displayed.
 
-=== Obtain  binaries of SteamVR and VRED CORE
+=== Create S3 Bucket and  Prefix to store SteamVR, VRED Core Binaries and Scene File for rendering
+
+*Instructions to create S3 bucket and prefix for media repository
+
+* Create S3 bucket to store SteamVR, VRED Core binaries and Scene file (CFN Ref: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[here])  - preferably in same region.
+
+* Create Key prefix to organize binaries stored in S3 bucket
+
+=== Obtain  binaries of SteamVR
 
 * Install and open the Steam Client (https://store.steampowered.com/about/) on a PC with full internet access.
 * In the Steam Client, open the Library section and find the part of it labeled "Tools".
@@ -22,6 +30,7 @@ Accept the Terms and Conditions to activate the subscription (this may take a fe
 * Right-click on the entry "SteamVR" and in the resulting popup menu click on the entry "Properties".
 * A new window with multiple tabs will open. Select the tab "LOCAL FILES" and click on the button labeled "BROWSE LOCAL FILES".
 * The directory containing the SteamVR Runtime will open. Compress  this entire directory onto folder and name it SteamVR.zip. We will be using this binary to install Steam VR.
+* Store SteamVR.zip binary in AWS S3 Bucket created previously
 
 === Setup EC2 for Network License management
 
@@ -41,7 +50,7 @@ Accept the Terms and Conditions to activate the subscription (this may take a fe
 * Choose "Browser Download" and click on the button.
 * Click "Start download" on the popup the opens.
 * Disable browser pop-up blockers before downloading.
-* Copy all installer *.sfx.exe files to your AWS S3 bucket.
+* Copy all installer *.sfx.exe files to your AWS media S3 bucket.
 
 [#predeployment1]
 image::../docs/deployment_guide/images/image1.png[predeployment1]
