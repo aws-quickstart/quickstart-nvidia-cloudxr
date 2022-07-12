@@ -4,6 +4,6 @@
 
 === Test the deployment
 
-When the AWS CloudFormation template has successfully created the stack, all server nodes will be running with the Autodesk VRED application installed in your AWS account. To access the application, in your preferred browser, go to the VRED URL listed in the Outputs tab 
+When the AWS CloudFormation template has successfully created the stack, all server nodes will be running with the Autodesk VRED application installed in your AWS account. To access the application, in your preferred browser, go to the VRED URL listed in the *Outputs* tab.
 
-The Quick Start will create VRED Instances and associate security group to enable connection from  Cloudxr client or NICE DCV web url. Quickstart output will emit primary node URL. The secondary server IP details can be collected from the auto scaling group instance details.
+The Quick Start will create VRED instances and associated security group to enable connection from the Cloudxr client or via the NICE DCV web url. The Quick Start output will display the primary node URL. The secondary server IP details can be collected from the auto scaling group instance details.
