@@ -4,51 +4,51 @@
 
 === Subscribe to CloudXR Marketplace offering
 
-*Instructions to get Cloudxr AMI from marketplace*
+//*Instructions to get Cloudxr AMI from marketplace*
 
-Using the NVIDIA CloudXR AMI Introductory Offer - WinServer 2019 eases installation and delivery of NVIDIA CloudXR . Deploying the Marketplace offering provides the following software and AWS instance configurations: CloudXR Server installer and documentation NICE DCV remote desktop access for developers and non-VR users NICE DCV virtual audio driver—used by CloudXR.
+//Using the NVIDIA CloudXR AMI Introductory Offer - WinServer 2019 eases installation and delivery of NVIDIA CloudXR. Deploying the Marketplace offering provides the following software and AWS instance configurations: CloudXR Server installer and documentation NICE DCV remote desktop access for developers and non-VR users NICE DCV virtual audio driver—used by CloudXR.
 
-Navigate to https://aws.amazon.com/marketplace[AWS Marketplace] and search for CloudXR to find the latest listing. Review the details and make a note of the instance size, AWS Pricing, usage, and other details. Select Continue to Subscribe. 
+Navigate to https://aws.amazon.com/marketplace[AWS Marketplace] and search for CloudXR to find the latest listing. Review the details and make a note of the instance size, AWS Pricing, usage, and other details. Select *Continue to Subscribe*. 
 
-**Click https://aws.amazon.com/marketplace/pp/prodview-galujeez5ljra[here] to access the AWS/CloudXR Marketplace AMI Listing.
+//**Click https://aws.amazon.com/marketplace/pp/prodview-galujeez5ljra[here] to access the AWS/CloudXR Marketplace AMI Listing.
 
 Accept the Terms and Conditions to activate the subscription (this may take a few minutes). When finished, an effective date will be displayed.
 
-=== Create S3 Bucket and  Prefix to store SteamVR, VRED Core Binaries and Scene File for rendering
+=== Create S3 Bucket to store binaries
 
-*Instructions to create S3 bucket and prefix for media repository
+//*Instructions to create S3 bucket and prefix for media repository
 
-* Create S3 bucket to store SteamVR, VRED Core binaries and Scene file (CFN Ref: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[here])  - preferably in same region.
+* https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[Create an S3 bucket] to store to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region into which you will deploy the Quick Start.
 
-* Create Key prefix to organize binaries stored in S3 bucket
+* Optionally, create an S3 key prefix to organize the binaries stored in the S3 bucket.
 
-=== Obtain  binaries of SteamVR
+=== Obtain SteamVR binary
 
-* Install and open the Steam Client (https://store.steampowered.com/about/) on a PC with full internet access.
-* In the Steam Client, open the Library section and find the part of it labeled "Tools".
-* Find the entry "SteamVR" and install it.
-* Right-click on the entry "SteamVR" and in the resulting popup menu click on the entry "Properties".
-* A new window with multiple tabs will open. Select the tab "LOCAL FILES" and click on the button labeled "BROWSE LOCAL FILES".
-* The directory containing the SteamVR Runtime will open. Compress  this entire directory onto folder and name it SteamVR.zip. We will be using this binary to install Steam VR.
-* Store SteamVR.zip binary in AWS S3 Bucket created previously
+* Install and open the https://store.steampowered.com/about/[Steam Client] on a PC with full internet access.
+* In the Steam Client, open the Library section and find the section labeled *Tools*.
+* Search for the *SteamVR* entry and install it.
+* Right-click on the *SteamVR* entry and in the resulting popup menu click *Properties*.
+* A new window with multiple tabs will open. Select the *LOCAL FILES* tab and click on *BROWSE LOCAL FILES*.
+* The directory containing the SteamVR Runtime will open. Compress this entire directory into a ZIP file named *SteamVR.zip*. This binary will be used to install Steam VR.
+* Store the SteamVR.zip binary in the previously created S3 bucket.
 
 === Setup EC2 for Network License management
 
-* Create an elastic network interface with a fixed MAC address 
-* Create an instance from a preconfigured AMI or a fresh Windows 10 or 11 
-* Download and install the Autodesk Network License Manager (https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software)
-* Create a license based on the NLM server name and the MAC address of the ENI 
-* Setup license file for NLM via LMTools 
+* Create an elastic network interface (ENI) with a fixed MAC address.
+* Create an EC2 instance from a preconfigured AMI or a new Windows 10 or 11 deployment.
+* Download and install the https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software[Autodesk Network License Manager].
+* Create a license based on the NLM server name and the MAC address of the ENI.
+* Setup a license file for NLM via LMTools.
 
-===  Get Autodesk VRED Core Binaries
+===  Obtain Autodesk VRED Core binary
 
-* Open https://manage.autodesk.com (https://manage.autodesk.com/) on your browser.
+* From a web browser, open https://manage.autodesk.com.
 * Sign in with your Autodesk credentials.
-* Click on "All Products and Services" on the left.
-* Choose VRED Core and click "View downloads".
-* Click on "View all" below the "Install now" button.
-* Choose "Browser Download" and click on the button.
-* Click "Start download" on the popup the opens.
+* Click on *All Products and Services* on the left.
+* Choose VRED Core and click *View downloads*.
+* Click on *View all* below the *Install now* button.
+* Choose *Browser Download*.
+* Select *Start download* from the resulting popup.
 * Disable browser pop-up blockers before downloading.
 * Copy all installer *.sfx.exe files to your AWS media S3 bucket.
 
