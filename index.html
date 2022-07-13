@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="description" content="VRED and CloudXR Deployment Guide on AWS">
 <meta name="keywords" content="Quick Start, AWS, VRED and CloudXR">
 <title>VRED and CloudXR on the AWS Cloud</title>
@@ -842,9 +842,10 @@ p.footer-text a{color:#d7d8d8}
 <li><a href="#_predeployment_steps">Predeployment steps</a>
 <ul class="sectlevel2">
 <li><a href="#_subscribe_to_cloudxr_marketplace_offering">Subscribe to CloudXR Marketplace offering</a></li>
-<li><a href="#_obtain_binaries_of_steamvr_and_vred_core">Obtain  binaries of SteamVR and VRED CORE</a></li>
+<li><a href="#_create_s3_bucket_to_store_binaries">Create S3 Bucket to store binaries</a></li>
+<li><a href="#_obtain_steamvr_binary">Obtain SteamVR binary</a></li>
 <li><a href="#_setup_ec2_for_network_license_management">Setup EC2 for Network License management</a></li>
-<li><a href="#_get_autodesk_vred_core_binaries">Get Autodesk VRED Core Binaries</a></li>
+<li><a href="#_obtain_autodesk_vred_core_binary">Obtain Autodesk VRED Core binary</a></li>
 </ul>
 </li>
 <li><a href="#_deployment_steps">Deployment steps</a></li>
@@ -876,7 +877,7 @@ p.footer-text a{color:#d7d8d8}
 </div>
 <div class="paragraph text-center">
 <p><strong>June 2022</strong><br>
-<em>Sahil Saini</em><br>
+<em>Sahil Saini, Autodesk Solutions Architect</em><br>
 <em>Dave May, AWS Integration &amp; Automation team</em><br></p>
 </div>
 <div class="admonitionblock tip text-left">
@@ -987,42 +988,49 @@ best practices, to provide you with your own virtual network on AWS.*</p>
 <div class="sect2">
 <h3 id="_subscribe_to_cloudxr_marketplace_offering">Subscribe to CloudXR Marketplace offering</h3>
 <div class="paragraph">
-<p><strong>Instructions to get Cloudxr AMI from marketplace</strong></p>
-</div>
-<div class="paragraph">
-<p>Using the NVIDIA CloudXR AMI Introductory Offer - WinServer 2019 eases installation and delivery of NVIDIA CloudXR . Deploying the Marketplace offering provides the following software and AWS instance configurations: CloudXR Server installer and documentation NICE DCV remote desktop access for developers and non-VR users NICE DCV virtual audio driver—used by CloudXR.</p>
-</div>
-<div class="paragraph">
-<p>Navigate to <a href="https://aws.amazon.com/marketplace">AWS Marketplace</a> and search for CloudXR to find the latest listing. Review the details and make a note of the instance size, AWS Pricing, usage, and other details. Select Continue to Subscribe.</p>
-</div>
-<div class="paragraph">
-<p>**Click <a href="https://aws.amazon.com/marketplace/pp/prodview-galujeez5ljra">here</a> to access the AWS/CloudXR Marketplace AMI Listing.</p>
+<p>Navigate to <a href="https://aws.amazon.com/marketplace">AWS Marketplace</a> and search for CloudXR to find the latest listing. Review the details and make a note of the instance size, AWS Pricing, usage, and other details. Select <strong>Continue to Subscribe</strong>.</p>
 </div>
 <div class="paragraph">
 <p>Accept the Terms and Conditions to activate the subscription (this may take a few minutes). When finished, an effective date will be displayed.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_obtain_binaries_of_steamvr_and_vred_core">Obtain  binaries of SteamVR and VRED CORE</h3>
+<h3 id="_create_s3_bucket_to_store_binaries">Create S3 Bucket to store binaries</h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Install and open the Steam Client (<a href="https://store.steampowered.com/about/" class="bare">https://store.steampowered.com/about/</a>) on a PC with full internet access.</p>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html">Create an S3 bucket</a> to store to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region into which you will deploy the Quick Start.</p>
 </li>
 <li>
-<p>In the Steam Client, open the Library section and find the part of it labeled "Tools".</p>
+<p>Optionally, create an S3 key prefix to organize the binaries stored in the S3 bucket.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_obtain_steamvr_binary">Obtain SteamVR binary</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Install and open the <a href="https://store.steampowered.com/about/">Steam Client</a> on a PC with full internet access.</p>
 </li>
 <li>
-<p>Find the entry "SteamVR" and install it.</p>
+<p>In the Steam Client, open the Library section and find the section labeled <strong>Tools</strong>.</p>
 </li>
 <li>
-<p>Right-click on the entry "SteamVR" and in the resulting popup menu click on the entry "Properties".</p>
+<p>Search for the <strong>SteamVR</strong> entry and install it.</p>
 </li>
 <li>
-<p>A new window with multiple tabs will open. Select the tab "LOCAL FILES" and click on the button labeled "BROWSE LOCAL FILES".</p>
+<p>Right-click on the <strong>SteamVR</strong> entry and in the resulting popup menu click <strong>Properties</strong>.</p>
 </li>
 <li>
-<p>The directory containing the SteamVR Runtime will open. Compress  this entire directory onto folder and name it SteamVR.zip. We will be using this binary to install Steam VR.</p>
+<p>A new window with multiple tabs will open. Select the <strong>LOCAL FILES</strong> tab and click on <strong>BROWSE LOCAL FILES</strong>.</p>
+</li>
+<li>
+<p>The directory containing the SteamVR Runtime will open. Compress this entire directory into a ZIP file named <strong>SteamVR.zip</strong>. This binary will be used to install Steam VR.</p>
+</li>
+<li>
+<p>Store the SteamVR.zip binary in the previously created S3 bucket.</p>
 </li>
 </ul>
 </div>
@@ -1032,53 +1040,53 @@ best practices, to provide you with your own virtual network on AWS.*</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Create an elastic network interface with a fixed MAC address</p>
+<p>Create an elastic network interface (ENI) with a fixed MAC address.</p>
 </li>
 <li>
-<p>Create an instance from a preconfigured AMI or a fresh Windows 10 or 11</p>
+<p>Create an EC2 instance from a preconfigured AMI or a new Windows 10 or 11 deployment.</p>
 </li>
 <li>
-<p>Download and install the Autodesk Network License Manager (<a href="https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software" class="bare">https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software</a>)</p>
+<p>Download and install the <a href="https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software">Autodesk Network License Manager</a>.</p>
 </li>
 <li>
-<p>Create a license based on the NLM server name and the MAC address of the ENI</p>
+<p>Create a license based on the NLM server name and the MAC address of the ENI.</p>
 </li>
 <li>
-<p>Setup license file for NLM via LMTools</p>
+<p>Setup a license file for NLM via LMTools.</p>
 </li>
 </ul>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_get_autodesk_vred_core_binaries">Get Autodesk VRED Core Binaries</h3>
+<h3 id="_obtain_autodesk_vred_core_binary">Obtain Autodesk VRED Core binary</h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Open <a href="https://manage.autodesk.com" class="bare">https://manage.autodesk.com</a> (<a href="https://manage.autodesk.com/" class="bare">https://manage.autodesk.com/</a>) on your browser.</p>
+<p>From a web browser, open <a href="https://manage.autodesk.com" class="bare">https://manage.autodesk.com</a>.</p>
 </li>
 <li>
 <p>Sign in with your Autodesk credentials.</p>
 </li>
 <li>
-<p>Click on "All Products and Services" on the left.</p>
+<p>Click on <strong>All Products and Services</strong> on the left.</p>
 </li>
 <li>
-<p>Choose VRED Core and click "View downloads".</p>
+<p>Choose VRED Core and click <strong>View downloads</strong>.</p>
 </li>
 <li>
-<p>Click on "View all" below the "Install now" button.</p>
+<p>Click on <strong>View all</strong> below the <strong>Install now</strong> button.</p>
 </li>
 <li>
-<p>Choose "Browser Download" and click on the button.</p>
+<p>Choose <strong>Browser Download</strong>.</p>
 </li>
 <li>
-<p>Click "Start download" on the popup the opens.</p>
+<p>Select <strong>Start download</strong> from the resulting popup.</p>
 </li>
 <li>
 <p>Disable browser pop-up blockers before downloading.</p>
 </li>
 <li>
-<p>Copy all installer *.sfx.exe files to your AWS S3 bucket.</p>
+<p>Copy all installer *.sfx.exe files to your AWS media S3 bucket.</p>
 </li>
 </ul>
 </div>
@@ -1154,10 +1162,10 @@ Unless you are customizing the Quick Start templates for your own projects, don&
 <div class="sect2">
 <h3 id="_test_the_deployment">Test the deployment</h3>
 <div class="paragraph">
-<p>When the AWS CloudFormation template has successfully created the stack, all server nodes will be running with the Autodesk VRED application installed in your AWS account. To access the application, in your preferred browser, go to the VRED URL listed in the Outputs tab</p>
+<p>When the AWS CloudFormation template has successfully created the stack, all server nodes will be running with the Autodesk VRED application installed in your AWS account. To access the application, in your preferred browser, go to the VRED URL listed in the <strong>Outputs</strong> tab.</p>
 </div>
 <div class="paragraph">
-<p>The Quick Start will create VRED Instances and associate security group to enable connection from  Cloudxr client or NICE DCV web url. Quickstart output will emit primary node URL. The secondary server IP addressess can be collected from the auto scaling group instance details.</p>
+<p>The Quick Start will create VRED instances and associated security group to enable connection from the Cloudxr client or via the NICE DCV web url. The Quick Start output will display the primary node URL. The secondary server IP details can be collected from the auto scaling group instance details.</p>
 </div>
 </div>
 </div>
@@ -1209,10 +1217,17 @@ Unless you are customizing the Quick Start templates for your own projects, don&
 <footer>
     <p class="footer-text">
         <!-- We can use document attributes: -->
-        <!-- Generated with Asciidoctor v2.0.15. -->
+        <!-- Generated with Asciidoctor v2.0.17. -->
         <a href="https://aws.amazon.com/privacy/">Privacy</a> | <a href="https://aws.amazon.com/terms/">Site terms</a> |
         &copy; 2022, Amazon Web Services, Inc. or its affiliates and Autodesk. All rights reserved.
     </p>
 </footer>
 </body>
 </html>
+<!--
+repo commit:
+97bfca91b0bcd4f9cce3c60ea5e2c5775f45c4a0
+
+submodule config:
+ 4ef16b77d6020a462feba269030c80f9088e6d1b docs/boilerplate (remotes/origin/revert-logo-1-g4ef16b7)
+-->
