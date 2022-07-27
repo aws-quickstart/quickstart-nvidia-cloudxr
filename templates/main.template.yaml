@@ -160,7 +160,6 @@ Parameters:
     Type: String    
   KeyPairName:
     Description: The name of an existing  public/private key pair, which allows you to securely connect to your instance after it launches.
-      this key pair.
     Type: AWS::EC2::KeyPair::KeyName        
   WorkloadInstanceType:
     AllowedValues:
@@ -190,7 +189,7 @@ Parameters:
   VredInstanceTag:
     Type: String
     Default: VRED
-    Description: Environment tag value for VRED  instances
+    Description: Name tag value for VRED  instances
   CloudxrStorageVolumeSize:
     Type: Number
     Default: 200
@@ -199,7 +198,7 @@ Parameters:
     MaxValue: 16000
     Description: Size of Cloudxr virtualized storage in GBs. 
   InstanceCount:
-    Description: Number of EC2 instances for collabration (Excludes Primary Node)
+    Description: Number of EC2 instances for collabration and Clustering
     Type: Number
     Default: 1
     MinValue: 1
@@ -209,7 +208,7 @@ Parameters:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
     Default: 10.0.0.0/16
-    Description: The CIDR IP range that is  permitted to access the bastion hosts and Autodesk VRED. We recommend that  you set this value to a trusted IP range. For example, you might want to  grant only your corporate network access to the software. The CIDR block must  be in the form x.x.x.x/x.
+    Description: The CIDR IP range that is  permitted to access the Primary and Collabration VRED Instances. We recommend that  you set this value to a trusted IP range. For example, you might want to  grant only your corporate network access to the software. The CIDR block must  be in the form x.x.x.x/x.
     Type: String
   PrimaryNodeIP:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
