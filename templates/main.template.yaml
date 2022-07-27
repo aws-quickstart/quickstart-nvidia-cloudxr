@@ -123,7 +123,7 @@ Parameters:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.160.0/20
-    Description: CIDR block for the perimeter network located in Availability Zone 3.
+    Description: CIDR block for the parameter network located in Availability Zone 3.
     Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -162,7 +162,6 @@ Parameters:
     Type: String    
   KeyPairName:
     Description: The name of an existing  public/private key pair, which allows you to securely connect to your instance after it launches.
-      this key pair.
     Type: AWS::EC2::KeyPair::KeyName        
   WorkloadInstanceType:
     AllowedValues:

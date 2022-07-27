@@ -96,15 +96,19 @@ Parameters:
   VPCID:
     Description: ID of your existing VPC for deployment(VPC must have internet connectivity)
     Type: AWS::EC2::VPC::Id
+
   PublicSubnetAID:
     Description: The CIDR block for the public  (DMZ) subnet located in Availability Zone 1. The CIDR block must be in the form x.x.x.x/16-28.
     Type: AWS::EC2::Subnet::Id
+
   PublicSubnetBID:
     Description: The CIDR block for the public  (DMZ) subnet located in Availability Zone 2. The CIDR block must be in the form x.x.x.x/16-28.
     Type: AWS::EC2::Subnet::Id
+
   PublicSubnetCID:
     Description: The CIDR block for the public  (DMZ) subnet located in Availability Zone 3. The CIDR block must be in the form x.x.x.x/16-28.
     Type: AWS::EC2::Subnet::Id
+
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
@@ -140,9 +144,11 @@ Parameters:
       a forward slash. See https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html
       and https://aws-quickstart.github.io/option1.html.
     Type: String
+
   KeyPairName:
     Description: The name of an existing  public/private key pair, which allows you to securely connect to your instance after it launches.
     Type: AWS::EC2::KeyPair::KeyName
+
   WorkloadInstanceType:
     AllowedValues:
     - g4dn.xlarge
@@ -217,6 +223,7 @@ Parameters:
     Description: Autodesk VRED 3D Scene file. Address should be in format (MediaS3Key/Scene.pdb)
     Type: String
     Default: replace-me-quickstart-nvidia-cloudxr-media/my_scene.pdb
+
 
 Mappings:
   AWSAMIRegionMap:
@@ -439,7 +446,7 @@ Resources:
       InstanceType: !Ref WorkloadInstanceType
       IamInstanceProfile: !Ref WorkstationAccessProfile
       Tags:
-        - Key: Environment
+        - Key: Name
           Value: !Ref VredInstanceTag
       NetworkInterfaces:
         - DeleteOnTermination: true
