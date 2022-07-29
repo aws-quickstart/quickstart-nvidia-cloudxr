@@ -18,7 +18,7 @@ Accept the Terms and Conditions to activate the subscription (this may take a fe
 
 //*Instructions to create S3 bucket and prefix for media repository
 
-* https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[Create an S3 bucket] to store to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region into which you will deploy the Quick Start.
+* https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[Create an S3 bucket] to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region into which you will deploy the Quick Start.
 
 * Optionally, create an S3 key prefix to organize the binaries stored in the S3 bucket.
 
