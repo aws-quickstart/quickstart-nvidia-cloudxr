@@ -220,9 +220,9 @@ Parameters:
     Type: String
     Default: replace-me-quickstart-nvidia-cloudxr-media/
   SceneAddress:
-    Description: Autodesk VRED 3D Scene file. Address should be in format (MediaS3Key/Scene.pdb)
+    Description: Autodesk VRED 3D Scene file. Address should be in format (MediaS3Key/Scene.vpb)
     Type: String
-    Default: replace-me-quickstart-nvidia-cloudxr-media/my_scene.pdb
+    Default: replace-me-quickstart-nvidia-cloudxr-media/my_scene.vpb
 
 
 Mappings:
@@ -356,8 +356,7 @@ Resources:
                   - !Sub ['arn:${AWS::Partition}:s3:::${S3Bucket}', S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]]
                   - !Sub "arn:${AWS::Partition}:s3:::${MediaS3Bucket}/*"
                   - !Sub "arn:${AWS::Partition}:s3:::${MediaS3Bucket}'"
-        - PolicyName: WorkstationSecretsAccess
-          PolicyDocument:
+        - PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
@@ -365,8 +364,8 @@ Resources:
                   - secretsmanager:GetSecretValue
                   - secretsmanager:DescribeSecret
                 Resource: "*"
-        - PolicyName: NiceDCVLicense
-          PolicyDocument:
+
+        - PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
@@ -447,7 +446,7 @@ Resources:
       IamInstanceProfile: !Ref WorkstationAccessProfile
       Tags:
         - Key: Name
-          Value: !Ref VredInstanceTag
+          Value: !Sub "${VredInstanceTag}-Primary"
       NetworkInterfaces:
         - DeleteOnTermination: true
           DeviceIndex: '0'
@@ -584,9 +583,9 @@ Resources:
         MaxSize: !Ref InstanceCount
         DesiredCapacity: !Ref InstanceCount
         Tags:
-          - Key: Environment
+          - Key: Name
             PropagateAtLaunch: true
-            Value: !Ref VredInstanceTag
+            Value: !Sub "${VredInstanceTag}-Collab"
 
 Outputs:
   VredInstanceID:

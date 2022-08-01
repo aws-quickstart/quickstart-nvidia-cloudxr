@@ -117,7 +117,7 @@ Parameters:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.144.0/20
-    Description: CIDR block for the perimeter network located in Availability Zone 2.
+    Description: CIDR block for the  parameter network located in Availability Zone 2.
     Type: String
   PublicSubnet3CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
@@ -236,9 +236,9 @@ Parameters:
     Type: String
     Default: replace-me-quickstart-nvidia-cloudxr-media/
   SceneAddress:
-    Description: Autodesk VRED 3D Scene file. Address should be in format (MediaS3Key/Scene.pdb)
+    Description: Autodesk VRED 3D Scene file. Address should be in format (MediaS3Key/Scene.vpb)
     Type: String
-    Default: replace-me-quickstart-nvidia-cloudxr-media/my_scene.pdb
+    Default: replace-me-quickstart-nvidia-cloudxr-media/my_scene.vpb
 
 #Mappings:
 #  AMI:
