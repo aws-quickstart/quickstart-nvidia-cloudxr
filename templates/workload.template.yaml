@@ -364,8 +364,10 @@ Resources:
                   - secretsmanager:GetSecretValue
                   - secretsmanager:DescribeSecret
                 Resource: "*"
+          PolicyName: VRED-workstation-secret-access
 
-        - PolicyDocument:
+        - PolicyName: VRED-workstation-nicedcv-license
+          PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
