@@ -8,7 +8,7 @@
 
 <#
 .DESCRIPTION
- A script to install SteamVR and VRED Core on an AWS EC2 Windows instance.
+ A script to install SteamVR, CloudXR and VRED Core on an AWS EC2 Windows instance.
 #>
 Param (
   [parameter(Mandatory=$true, HelpMessage="The optional AWS S3 bucket.")]
@@ -81,6 +81,17 @@ Write-Output "VRED Core installation completed." | Timestamp
 $steamZipPath = Join-Path $tempPath "SteamVR.zip"
 $steamInstPath = Join-Path $tempPath "SteamVR"
 Expand-Archive -LiteralPath $steamZipPath -DestinationPath $steamInstPath
+
+# Install CloudXR
+Write-Output "Install CloudXR" | Timestamp
+Start-Process -FilePath "$env:USERPROFILE\\Desktop\3.1-CloudXR-SDK(11-12-2021)\Installer\CloudXR-Setup.exe" -ArgumentList "/S /FORCE=1" -Wait
+
+Write-Output "Register VRPath" | Timestamp
+$steamRegPath = Join-Path $steamInstPath "\bin\win64\vrpathreg.exe"
+Start-Process -FilePath $steamRegPath -ArgumentList 'adddriver "C:\Program Files\NVIDIA Corporation\CloudXR\VRDriver\CloudXRRemoteHMD"' -Wait -NoNewWindow
+
+Write-Output "Check CloudXR driver in SteamVR" | Timestamp
+Start-Process -FilePath $steamRegPath -ArgumentList "show" -Wait -NoNewWindow
 
 # Start SteamVR
 # https://vrcollab.com/help/install-steamvr-in-an-enterprise-or-government-use-environment/
