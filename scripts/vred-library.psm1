@@ -22,6 +22,10 @@ function Initialize-VredForCloudXR {
 }
 Export-ModuleMember -Function Initialize-VredForCloudXR
 
+# Timestamp filter
+filter Timestamp {"$(Get-Date -Format G): $_"}
+Export-ModuleMember -Function Timestamp
+
 
 # Invokes a new VRED Core process and loads the specified scene.
 function Invoke-VredCore {

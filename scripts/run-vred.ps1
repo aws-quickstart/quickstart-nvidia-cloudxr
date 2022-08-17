@@ -61,7 +61,7 @@ $scenePath = Join-Path $tempPath $Scene
 
 # Copy scene file from AWS S3 bucket or web server to temporary directory
 if (![string]::IsNullOrWhiteSpace($S3Bucket)) {
-  Write-Output "Copy scene file from AWS S3 bucket '$S3Bucket' to local temp folder"
+  Write-Output "Copy scene file from AWS S3 bucket '$S3Bucket' to local temp folder" | Timestamp
 
   if (![string]::IsNullOrWhiteSpace($AccessKey) -or ![string]::IsNullOrWhiteSpace($SecretKey)) {
     Copy-S3Object -BucketName $S3Bucket -Key $Scene -LocalFolder $tempPath -AccessKey $AccessKey -SecretKey $SecretKey
@@ -69,7 +69,7 @@ if (![string]::IsNullOrWhiteSpace($S3Bucket)) {
     Copy-S3Object -BucketName $S3Bucket -Key $Scene -LocalFolder $tempPath
   }
 } elseif (Test-UriScheme($Scene, @("http", "https"))) {
-  Write-Output "Download scene file from '$Scene' to local temp folder"
+  Write-Output "Download scene file from '$Scene' to local temp folder" | Timestamp
 
   # Improve download performance by disabling the display of progress
   $ProgressPreference = 'SilentlyContinue'
@@ -91,10 +91,10 @@ do {
     # Start VRED Core
     try {
       Invoke-VredCore $scenePath $Version
-      Write-Output "VRED Core is starting with scene $scenePath"
+      Write-Output "VRED Core is starting with scene $scenePath" | Timestamp
       $started = $true
     } catch [InvalidOperationException] {
-      Write-Output "VRED Core failed to start"
+      Write-Output "VRED Core failed to start" | Timestamp
       Write-Host -ForegroundColor Red $_
       exit 1
     }
@@ -103,7 +103,7 @@ do {
     try {
       $response = Invoke-WebRequest "http://localhost:8888/isrunning" #-SkipHttpErrorCheck
       if ($response.Content -eq "1") {
-        Write-Output "VRED Core is ready to use."
+        Write-Output "VRED Core is ready to use." | Timestamp
         $serverRunning = $true
       }
     } catch {}
@@ -114,7 +114,7 @@ do {
       Join-VredCollaboration $CollaborationServer
     }
   } else {
-    Write-Output "VRED Core has exited!"
+    Write-Output "VRED Core has exited!" | Timestamp
     break
   }
 
