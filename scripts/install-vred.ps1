@@ -79,12 +79,12 @@ Write-Output "VRED Core installation completed." | Timestamp
 
 # Extract SteamVR files
 $steamZipPath = Join-Path $tempPath "SteamVR.zip"
-$steamInstPath = Join-Path $tempPath "SteamVR"
+$steamInstPath = "$env:USERPROFILE\Desktop\SteamVR"
 Expand-Archive -LiteralPath $steamZipPath -DestinationPath $steamInstPath
 
 # Install CloudXR
 Write-Output "Install CloudXR" | Timestamp
-Start-Process -FilePath "$env:USERPROFILE\\Desktop\3.1-CloudXR-SDK(11-12-2021)\Installer\CloudXR-Setup.exe" -ArgumentList "/S /FORCE=1" -Wait
+Start-Process -FilePath "$env:USERPROFILE\Desktop\3.1-CloudXR-SDK(11-12-2021)\Installer\CloudXR-Setup.exe" -ArgumentList "/S /FORCE=1" -Wait
 
 Write-Output "Register VRPath" | Timestamp
 $steamRegPath = Join-Path $steamInstPath "\bin\win64\vrpathreg.exe"
