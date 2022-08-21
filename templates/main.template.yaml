@@ -236,9 +236,9 @@ Parameters:
     Type: String
     Default: replace-me-quickstart-nvidia-cloudxr-media/
   SceneAddress:
-    Description: Autodesk VRED 3D Scene file. Address should be in format (MediaS3Key/Scene.pdb)
+    Description: Autodesk VRED 3D Scene file. Address should be in format (MediaS3Key/Scene.vpb)
     Type: String
-    Default: replace-me-quickstart-nvidia-cloudxr-media/my_scene.pdb
+    Default: replace-me-quickstart-nvidia-cloudxr-media/my_scene.vpb
 
 #Mappings:
 #  AMI:
