@@ -377,7 +377,6 @@ Resources:
   WorkstationAccessProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
-      InstanceProfileName: VREDRole
       Path: /
       Roles:
         - !Ref WorkstationAccessRole
