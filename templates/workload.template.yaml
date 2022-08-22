@@ -482,6 +482,7 @@ Resources:
             VolumeSize: !Ref CloudxrStorageVolumeSize
             DeleteOnTermination: true
             Encrypted: false
+            Iops: 100
           DeviceName: /dev/sda1
       KeyName: !Ref KeyPairName
       UserData:
