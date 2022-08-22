@@ -322,6 +322,26 @@ Resources:
           CidrIp: !Ref PublicRemoteCidr
       VpcId: !Ref VPCID
 
+  WorkstationSGIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+        GroupId: !Ref WorkstationSG
+        Description: "Allow Ec2 node interconnectivity on port 8889"
+        IpProtocol: tcp
+        FromPort: 8889
+        ToPort: 8889
+        SourceSecurityGroupId: !Ref WorkstationSG
+
+  WorkstationSGEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+        GroupId: !Ref WorkstationSG
+        Description: "Allow Ec2 node interconnectivity on port 8889"
+        IpProtocol: tcp
+        FromPort: 8889
+        ToPort: 8889
+        DestinationSecurityGroupId: !Ref WorkstationSG
+
   WorkstationAccessRole:
     Type: "AWS::IAM::Role"
     Metadata:
