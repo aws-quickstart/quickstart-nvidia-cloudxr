@@ -478,9 +478,16 @@ Resources:
             - ' --region '
             - !Ref AWS::Region
             - '
-              '
-            - </script>
 
+              '
+            - !Sub 'cfn-signal.exe -e %ERRORLEVEL% --stack ${AWS::StackId} --region ${AWS::Region} --resource PrimaryNode'
+            - '
+
+              '
+            - '</script>'
+    CreationPolicy:
+        ResourceSignal:
+            Timeout: PT1H
 
   LaunchConfig:
     Type: "AWS::AutoScaling::LaunchConfiguration"
