@@ -478,7 +478,7 @@ Resources:
               PrivateIpAddress: !Ref 'PrimaryNodeIP'
       BlockDeviceMappings:
         - Ebs:
-            VolumeType: gp3
+            VolumeType: io2
             VolumeSize: !Ref CloudxrStorageVolumeSize
             DeleteOnTermination: true
             Encrypted: false
