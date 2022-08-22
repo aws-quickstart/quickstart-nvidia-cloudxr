@@ -35,10 +35,7 @@ Param (
   $AccessKey,
   [parameter(Mandatory=$false, HelpMessage="The AWS secret key for the S3 user account.")]
   [String]
-  $SecretKey,
-  [parameter(Mandatory=$false, HelpMessage="The VRED product version.")]
-  [String]
-  $Version = "15.0"
+  $SecretKey
 )
 
 Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
@@ -90,7 +87,7 @@ do {
   {
     # Start VRED Core
     try {
-      Invoke-VredCore $scenePath $Version
+      Invoke-VredCore $scenePath
       Write-Output "VRED Core is starting with scene $scenePath" | Timestamp
       $started = $true
     } catch [InvalidOperationException] {
