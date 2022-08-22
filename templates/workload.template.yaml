@@ -377,7 +377,6 @@ Resources:
   WorkstationAccessProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
-      InstanceProfileName: VREDRole
       Path: /
       Roles:
         - !Ref WorkstationAccessRole
@@ -459,7 +458,7 @@ Resources:
               PrivateIpAddress: !Ref 'PrimaryNodeIP'
       BlockDeviceMappings:
         - Ebs:
-            VolumeType: gp2
+            VolumeType: gp3
             VolumeSize: !Ref CloudxrStorageVolumeSize
             DeleteOnTermination: true
             Encrypted: false
@@ -478,9 +477,16 @@ Resources:
             - ' --region '
             - !Ref AWS::Region
             - '
-              '
-            - </script>
 
+              '
+            - !Sub 'cfn-signal.exe -e %ERRORLEVEL% --stack ${AWS::StackId} --region ${AWS::Region} --resource PrimaryNode'
+            - '
+
+              '
+            - '</script>'
+    CreationPolicy:
+        ResourceSignal:
+            Timeout: PT1H
 
   LaunchConfig:
     Type: "AWS::AutoScaling::LaunchConfiguration"
@@ -551,7 +557,7 @@ Resources:
       ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", NVIDIAWIN]
       BlockDeviceMappings:
         - Ebs:
-            VolumeType: gp2
+            VolumeType: gp3
             VolumeSize: !Ref CloudxrStorageVolumeSize
             DeleteOnTermination: true
             Encrypted: false

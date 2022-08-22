@@ -25,6 +25,9 @@ Param (
   $SecretKey
 )
 
+# Disable Windows Defender Realtime Protection to speed up the installation
+Set-MpPreference -DisableRealtimeMonitoring $true
+
 Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
 
 # Create tempoary folder
@@ -96,5 +99,7 @@ Start-Process -FilePath $steamRegPath -ArgumentList "show" -Wait -NoNewWindow
 # Start SteamVR
 # https://vrcollab.com/help/install-steamvr-in-an-enterprise-or-government-use-environment/
 $steamVRPath = Join-Path $steamInstPath "bin\win64\vrstartup.exe"
-Start-Process -FilePath $steamVRPath
-Write-Output "SteamVR started." | Timestamp
+Start-Process -FilePath $steamVRPathWrite-Output "SteamVR started."
+
+# Re-enable Windows Defender Realtime Protection to speed up the installation
+Set-MpPreference -DisableRealtimeMonitoring $false
