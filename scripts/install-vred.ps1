@@ -83,7 +83,7 @@ Write-Output "VRED Core installation completed." | Timestamp
 # Extract SteamVR files
 $steamZipPath = Join-Path $tempPath "SteamVR.zip"
 $steamInstPath = "$env:USERPROFILE\Desktop\SteamVR"
-Expand-Archive -LiteralPath $steamZipPath -DestinationPath $steamInstPath
+Expand-Archive -LiteralPath $steamZipPath -DestinationPath $steamInstPath -Force
 
 # Install CloudXR
 Write-Output "Install CloudXR" | Timestamp
@@ -99,7 +99,8 @@ Start-Process -FilePath $steamRegPath -ArgumentList "show" -Wait -NoNewWindow
 # Start SteamVR
 # https://vrcollab.com/help/install-steamvr-in-an-enterprise-or-government-use-environment/
 $steamVRPath = Join-Path $steamInstPath "bin\win64\vrstartup.exe"
-Start-Process -FilePath $steamVRPathWrite-Output "SteamVR started."
+Start-Process -FilePath $steamVRPath
+Write-Output "SteamVR started."
 
 # Re-enable Windows Defender Realtime Protection to speed up the installation
 Set-MpPreference -DisableRealtimeMonitoring $false
