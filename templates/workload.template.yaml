@@ -322,25 +322,16 @@ Resources:
           CidrIp: !Ref PublicRemoteCidr
       VpcId: !Ref VPCID
 
-  WorkstationSGIngress:
-    Type: AWS::EC2::SecurityGroupIngress
+  CollaborationSG:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-        GroupId: !Ref WorkstationSG
-        Description: "Allow Ec2 node interconnectivity on port 8889"
-        IpProtocol: tcp
-        FromPort: 8889
-        ToPort: 8889
-        SourceSecurityGroupId: !Ref WorkstationSG
-
-  WorkstationSGEgress:
-    Type: AWS::EC2::SecurityGroupEgress
-    Properties:
-        GroupId: !Ref WorkstationSG
-        Description: "Allow Ec2 node interconnectivity on port 8889"
-        IpProtocol: tcp
-        FromPort: 8889
-        ToPort: 8889
-        DestinationSecurityGroupId: !Ref WorkstationSG
+      GroupDescription: "Allow from WorkstationSG"
+      VpcId: !Ref VPCID
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8889
+          ToPort: 8889
+          SourceSecurityGroupId: !Ref WorkstationSG
 
   WorkstationAccessRole:
     Type: "AWS::IAM::Role"
@@ -574,7 +565,7 @@ Resources:
       KeyName: !Ref KeyPairName
       InstanceType: !Ref WorkloadInstanceType
       IamInstanceProfile: !Ref 'WorkstationAccessProfile'
-      SecurityGroups: [!Ref 'WorkstationSG']
+      SecurityGroups: [!Ref 'WorkstationSG', !Ref 'CollaborationSG']
       ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", NVIDIAWIN]
       BlockDeviceMappings:
         - Ebs:
@@ -613,7 +604,7 @@ Resources:
         Tags:
           - Key: Name
             PropagateAtLaunch: true
-            Value: !Sub "${VredInstanceTag}-Primary"
+            Value: !Sub "${VredInstanceTag}-Collab"
 
 Outputs:
   VredInstanceID:
