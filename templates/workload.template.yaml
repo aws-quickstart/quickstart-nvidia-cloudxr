@@ -464,6 +464,7 @@ Resources:
           SubnetId: !Ref 'PublicSubnetAID'
           GroupSet:
             - !Ref 'WorkstationSG'
+            - !Ref 'CollaborationSG'
           PrivateIpAddresses:
             - Primary: true
               PrivateIpAddress: !Ref 'PrimaryNodeIP'
