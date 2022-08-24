@@ -31,13 +31,8 @@ Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
 Set-MpPreference -DisableRealtimeMonitoring $true
 
 # Disable windows updates to prevent a restart of the instance
-try {
-  Start-Process "sc.exe" -ArgumentList "stop wuauserv"
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name NoAutoUpdate -Value 1
-  Write-Output "Windows Auto-Update stopped." | Timestamp
-} catch {
-  Write-Output "Stopping Windows Auto-Update failed." | Timestamp
-}
+Start-Process "sc.exe" -ArgumentList "stop wuauserv"
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name NoAutoUpdate -Value 1
 
 # Create tempoary folder
 $tempPath = New-TempFolder
