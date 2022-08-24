@@ -30,7 +30,7 @@ Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
 # Disable Windows Defender Realtime Protection to speed up the installation
 Set-MpPreference -DisableRealtimeMonitoring $true
 
-# Disable windows updates to prevent a restart of the instance
+# Disable Windows updates to prevent a restart of the instance
 Start-Process "sc.exe" -ArgumentList "stop wuauserv"
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name NoAutoUpdate -Value 1
 
@@ -99,6 +99,10 @@ Start-Process -FilePath $steamRegPath -ArgumentList 'adddriver "C:\Program Files
 
 Write-Output "Check CloudXR driver in SteamVR" | Timestamp
 Start-Process -FilePath $steamRegPath -ArgumentList "show" -Wait -NoNewWindow
+
+# Add firewall rule for SteamVR
+$steamVRServerPath = Join-Path $steamInstPath "bin\win64\vrserver.exe"
+New-NetFirewallRule -DisplayName "CloudXR SteamVR Server" -Direction Inbound -Program $steamVRServerPath -Action Allow
 
 # Start SteamVR
 # https://vrcollab.com/help/install-steamvr-in-an-enterprise-or-government-use-environment/
