@@ -67,6 +67,17 @@ function Get-ExecutablePath {
 Export-ModuleMember -Function Get-ExecutablePath
 
 
+# Trys to get the public IP address of the machine.
+function Get-PublicIP {
+  try {
+    return (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+  } catch {
+    return ""
+  }
+}
+Export-ModuleMember -Function Get-PublicIP
+
+
 # Initializes VRED Core for CloudXR.
 function Initialize-VredForCloudXR {
   Write-Output "VRED Core initialize by script"
