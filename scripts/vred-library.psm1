@@ -39,17 +39,17 @@ Export-ModuleMember -Function Get-ReleaseVersion
 
 
 # Returns the latest installed product version of VRED Core.
-function Get-LastestProductVersion {
-  $properties = Get-ChildItem -Path Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Autodesk\VREDCore | Select-Object -ExpandProperty Name | Sort
+function Get-LatestProductVersion {
+  $properties = @(Get-ChildItem -Path Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Autodesk\VREDCore | Select-Object -ExpandProperty Name | Sort)
   if ($properties.Length -eq 0) { throw "No VRED Core installations found." }
   Split-Path -Path $properties[-1] -Leaf
 }
-Export-ModuleMember -Function Get-LastestProductVersion
+Export-ModuleMember -Function Get-LatestProductVersion
 
 
 # Returns the latest installed release version of VRED Core.
 function Get-LastestReleaseVersion {
-  Get-ReleaseVersion (Get-LastestProductVersion)
+  Get-ReleaseVersion (Get-LatestProductVersion)
 }
 Export-ModuleMember -Function Get-LastestReleaseVersion
 
@@ -59,7 +59,7 @@ function Get-ExecutablePath {
   param (
     [parameter(Mandatory=$false, HelpMessage="The VRED product version, e.g. 15.0")]
     [String]
-    $Version = (Get-LastestProductVersion)
+    $Version = (Get-LatestProductVersion)
   )
 
   Get-ItemProperty -Path Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Autodesk\VREDCore\$Version -Name Executable | Select-Object -ExpandProperty Executable
@@ -97,7 +97,7 @@ function Invoke-VredCore {
     $ScenePath,
     [parameter(Mandatory=$false, HelpMessage="The VRED product version to start.")]
     [String]
-    $Version = (Get-LastestProductVersion)
+    $Version = (Get-LatestProductVersion)
   )
 
   $vredPath = Get-ExecutablePath $Version
