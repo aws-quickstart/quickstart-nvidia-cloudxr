@@ -93,11 +93,16 @@ Expand-Archive -LiteralPath $steamZipPath -DestinationPath $steamInstPath -Force
 Write-Output "Install CloudXR" | Timestamp
 Start-Process -FilePath "$env:USERPROFILE\Desktop\3.1-CloudXR-SDK(11-12-2021)\Installer\CloudXR-Setup.exe" -ArgumentList "/S /FORCE=1" -Wait
 
-Write-Output "Register VRPath" | Timestamp
+Write-Output "Configure SteamVR" | Timestamp
 $steamRegPath = Join-Path $steamInstPath "\bin\win64\vrpathreg.exe"
-Start-Process -FilePath $steamRegPath -ArgumentList 'adddriver "C:\Program Files\NVIDIA Corporation\CloudXR\VRDriver\CloudXRRemoteHMD"' -Wait -NoNewWindow
+$steamConfigPath = "$env:USERPROFILE\AppData\Local\openvr\config"
+$steamLogPath = "$env:USERPROFILE\AppData\Local\openvr\logs"
+Start-Process -FilePath $steamRegPath -ArgumentList "setconfig $steamConfigPath" -Wait
+Start-Process -FilePath $steamRegPath -ArgumentList "setlog $steamLogPath" -Wait
+Start-Process -FilePath $steamRegPath -ArgumentList "setruntime $steamInstPath" -Wait
+Start-Process -FilePath $steamRegPath -ArgumentList 'adddriver "C:\Program Files\NVIDIA Corporation\CloudXR\VRDriver\CloudXRRemoteHMD"' -Wait
 
-Write-Output "Check CloudXR driver in SteamVR" | Timestamp
+Write-Output "Check SteamVR configuration" | Timestamp
 Start-Process -FilePath $steamRegPath -ArgumentList "show" -Wait -NoNewWindow
 
 # Add firewall rule for SteamVR
