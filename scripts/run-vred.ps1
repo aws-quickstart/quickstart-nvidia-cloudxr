@@ -47,6 +47,9 @@ try {
   Add-Type -AssemblyName System.Web
 }
 
+# Improve download performance by disabling the display of progress
+$ProgressPreference = 'SilentlyContinue'
+
 # Change license to new server
 Set-AdskLicense $LicenseServer
 
@@ -68,9 +71,6 @@ if (![string]::IsNullOrWhiteSpace($S3Bucket)) {
   }
 } elseif (Test-UriScheme($Scene, @("http", "https"))) {
   Write-Output "Download scene file from '$Scene' to local temp folder" | Timestamp
-
-  # Improve download performance by disabling the display of progress
-  $ProgressPreference = 'SilentlyContinue'
 
   # Extract filename from scene address and update path
   $sceneFilename = Split-Path -Path $Scene -Leaf

@@ -27,6 +27,9 @@ Param (
 
 Import-Module -Name $PSScriptRoot\vred-library.psm1 -Force
 
+# Improve download performance by disabling the display of progress
+$ProgressPreference = 'SilentlyContinue'
+
 # Disable Windows Defender Realtime Protection to speed up the installation
 Set-MpPreference -DisableRealtimeMonitoring $true
 
