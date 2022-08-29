@@ -52,7 +52,7 @@ Set-AdskLicense $LicenseServer
 
 # Create temp folder
 $tempPath = "$env:USERPROFILE\Desktop\VRED"
-New-Item -Type Directory -Path $tempPath | Out-Null
+[Void](New-Item -Type Directory -Path $tempPath -Force)
 
 # Path to scene file in temp folder
 $scenePath = Join-Path $tempPath $Scene
@@ -80,9 +80,14 @@ if (![string]::IsNullOrWhiteSpace($S3Bucket)) {
 }
 
 # Set public IP or hostname as username for collaboration session
-$CollaborationName = Get-PublicIP
-if ($CollaborationName -eq "") { $CollaborationName = hostname; }
-Write-Output "Collaboration name is $CollaborationName" | Timestamp
+$collaborationName = Get-PublicIP
+if ($collaborationName -eq "") { $collaborationName = hostname; }
+Write-Output "Collaboration name is $collaborationName" | Timestamp
+
+# Create post python script
+$vredScript = Get-InitScript $CollaborationServer $collaborationName
+$postPythonPath = Join-Path $tempPath "vred.py"
+Set-Content $postPythonPath $vredScript -Encoding utf8
 
 # Loop until VRED Core is running properly
 $started = $false
@@ -93,7 +98,7 @@ do {
   {
     # Start VRED Core
     try {
-      Invoke-VredCore $scenePath
+      Invoke-VredCore $scenePath $postPythonPath
       Write-Output "VRED Core is starting with scene $scenePath" | Timestamp
       $started = $true
     } catch [InvalidOperationException] {
@@ -110,12 +115,6 @@ do {
         $serverRunning = $true
       }
     } catch {}
-
-    # Run initial python script if running
-    if ($serverRunning) {
-      Initialize-VredForCloudXR
-      Join-VredCollaboration -Address $CollaborationServer -UserName $CollaborationName
-    }
   } else {
     Write-Output "VRED Core has exited!" | Timestamp
     break

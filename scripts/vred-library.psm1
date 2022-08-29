@@ -78,21 +78,34 @@ function Get-PublicIP {
 Export-ModuleMember -Function Get-PublicIP
 
 
-# Initializes VRED Core for CloudXR.
-function Initialize-VredForCloudXR {
-  Write-Output "VRED Core initialize by script"
+# Builds the initialization python script for VRED
+function Get-InitScript {
+  param (
+    [parameter(Mandatory=$true, HelpMessage="The collaboration server address.")]
+    [String]
+    $CollaborationServer,
+    [parameter(Mandatory=$true, HelpMessage="The collaboration session user name.")]
+    [String]
+    $UserName
+  )
 
-  try {
-    # A script to change the display mode to open vr as soon as an Hmd is active
-    $script = 'exec """\ndef testVR():\n    vrOSGWidget.setDisplayMode(VR_DISPLAY_OPEN_VR)\n    if(vrHMDService.isHmdActive()):\n        timer.setActive(false)\n        print("VR Active!")\n    else:\n        print("VR not yet active")\n\ntimer = vrTimer(2)\ntimer.connect(testVR)\ntimer.setActive(true)\n"""'
-    Invoke-WebRequest "http://localhost:8888/python?value=$([System.Web.HTTPUtility]::UrlEncode($script))" | Out-Null #-SkipHttpErrorCheck
-  } catch {
-    Write-Output "Run initialization script failed"
-    Write-Host -ForegroundColor Red $_
-    throw $_
-  }
+  # A script to join the collaboration session and to change the display mode to open vr as soon as an Hmd is available
+@"
+vrSessionService.join("$CollaborationServer", userName="$UserName", color=PySide2.QtGui.Qt.transparent, roomName="AWS", passwd="", forceVersion=False)
+
+def testVR():
+  vrOSGWidget.setDisplayMode(VR_DISPLAY_OPEN_VR)
+  if(vrHMDService.isHmdActive()):
+    timer.setActive(false)
+    print("VR Active!")
+  else:
+    print("VR not yet active")
+timer = vrTimer(2)
+timer.connect(testVR)
+timer.setActive(true)
+"@
 }
-Export-ModuleMember -Function Initialize-VredForCloudXR
+Export-ModuleMember -Function Get-InitScript
 
 
 # Timestamp filter
@@ -106,46 +119,26 @@ function Invoke-VredCore {
     [parameter(Mandatory=$false, HelpMessage="Path to the scene to load with VRED.")]
     [String]
     $ScenePath,
+    [parameter(Mandatory=$false, HelpMessage="Path to a post python script to load with VRED.")]
+    [String]
+    $PostPython,
     [parameter(Mandatory=$false, HelpMessage="The VRED product version to start.")]
     [String]
     $Version = (Get-LatestProductVersion)
   )
 
   $vredPath = Get-ExecutablePath $Version
-  Start-Process -FilePath $vredPath -ArgumentList "$ScenePath -postpython `"print(\`"Hello AWS instance\`")`""
+  # Start-Process -FilePath $vredPath -ArgumentList "$ScenePath -postpython `"print(\`"Hello AWS instance\`")`""
+  Start-Process -FilePath $vredPath -ArgumentList "$ScenePath $PostPython"
 }
 Export-ModuleMember -Function Invoke-VredCore
-
-
-# The locally running VRED Core joins a collaboration session.
-function Join-VredCollaboration {
-  param (
-    [String]
-    $Address,
-    [String]
-    $UserName = "AWS1"
-  )
-
-  Write-Output "VRED Core join collaboration session $Address"
-
-  try {
-    # A script to change the display mode to open vr as soon as an Hmd is active
-    $script = 'vrSessionService.join("' + $Address + '", userName="' + $UserName + '", color=PySide2.QtGui.Qt.transparent, roomName="AWS", passwd="", forceVersion=False)'
-    Invoke-WebRequest "http://localhost:8888/python?value=$([System.Web.HTTPUtility]::UrlEncode($script))" | Out-Null #-SkipHttpErrorCheck
-  } catch {
-    Write-Output "Run initialization script failed"
-    Write-Host -ForegroundColor Red $_
-    throw $_
-  }
-}
-Export-ModuleMember -Function Join-VredCollaboration
 
 
 # Creates a temporary folder and returns the full path to it.
 function New-TempFolder {
   $tempPath = Join-Path $Env:Temp $(New-Guid)
-  Write-Output "Create temporary folder $tempPath" | Out-Null
-  New-Item -Type Directory -Path $tempPath | Out-Null
+  Write-Output "Create temporary folder $tempPath"
+  [Void](New-Item -Type Directory -Path $tempPath)
   $tempPath
 }
 Export-ModuleMember -Function New-TempFolder
