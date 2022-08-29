@@ -25,7 +25,7 @@ Param (
   $SecretKey
 )
 
-Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
+Import-Module -Name $PSScriptRoot\vred-library.psm1 -Force
 
 # Disable Windows Defender Realtime Protection to speed up the installation
 Set-MpPreference -DisableRealtimeMonitoring $true

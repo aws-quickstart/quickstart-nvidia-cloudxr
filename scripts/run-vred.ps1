@@ -38,7 +38,7 @@ Param (
   $SecretKey
 )
 
-Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
+Import-Module -Name $PSScriptRoot\vred-library.psm1 -Force
 
 # Add Type System.Web if not already added
 try {
