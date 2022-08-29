@@ -51,7 +51,8 @@ try {
 Set-AdskLicense $LicenseServer
 
 # Create temp folder
-$tempPath = New-TempFolder
+$tempPath = "$env:USERPROFILE\Desktop\VRED"
+New-Item -Type Directory -Path $tempPath | Out-Null
 
 # Path to scene file in temp folder
 $scenePath = Join-Path $tempPath $Scene
