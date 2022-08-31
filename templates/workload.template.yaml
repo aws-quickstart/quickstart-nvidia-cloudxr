@@ -213,54 +213,12 @@ Parameters:
     Description: Autodesk VRED 3D Scene file. Address should be in format (MediaS3Key/Scene.vpb)
     Type: String
     Default: replace-me-quickstart-nvidia-cloudxr-media/my_scene.vpb
+  ImageId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Description: CloudXR is NVIDIA's streaming SDK
+    Default: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.1-vgpu-13.1
+#    Default: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.2-vgpu-14.1
 
-
-Mappings:
-  AWSAMIRegionMap:
-    us-east-1:
-      NVIDIAWIN: ami-024836fc2e856676b
-    us-east-2:
-      NVIDIAWIN: ami-02bbf726b4e66cadc
-    us-west-1:
-      NVIDIAWIN: ami-0269a87b420e24bbf
-    us-west-2:
-      NVIDIAWIN: ami-08f6a1cc3966e7664
-    ca-central-1:
-      NVIDIAWIN: ami-03b9561bfc9ce6bdc
-    eu-central-1:
-      NVIDIAWIN: ami-0d5bdeb093b8ca54a
-    eu-west-1:
-      NVIDIAWIN: ami-03754291a37e198cf
-    eu-west-2:
-      NVIDIAWIN: ami-010d42951441feca5
-    eu-west-3:
-      NVIDIAWIN: ami-026d2bcf50ded8b2c
-    eu-north-1:
-      NVIDIAWIN: ami-0388133a2e99c28aa
-    eu-south-1:
-      NVIDIAWIN: ami-0e73ac91962153a03
-    ap-southeast-1:
-      NVIDIAWIN: ami-0d087e2dc27fcfb0c
-    ap-southeast-2:
-      NVIDIAWIN: ami-0cf4fae68ca884e0f
-    ap-south-1:
-      NVIDIAWIN: ami-0705d258c19d56587
-    ap-northeast-1:
-      NVIDIAWIN: ami-00ce76c6f171959ab
-    ap-northeast-2:
-      NVIDIAWIN: ami-044719835f814b445
-    ap-east-1:
-      NVIDIAWIN: ami-037bcd057531ecf02
-    sa-east-1:
-      NVIDIAWIN: ami-080198dd0f2e9b7cf
-    me-south-1:
-      NVIDIAWIN: ami-09f252ba46cca63e5
-    af-south-1:
-      NVIDIAWIN: ami-02ceb301b599fb738
-#  AMI:
-#    Alias:
-#      Cloudxr3: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.1-vgpu-13.1
-#     Cloudxr2: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-2.1.29897464-vgpu-12.1
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 
@@ -442,7 +400,7 @@ Resources:
                 - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
                   S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
     Properties:
-      ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", NVIDIAWIN]
+      ImageId: !Ref ImageId
       InstanceType: !Ref WorkloadInstanceType
       IamInstanceProfile: !Ref WorkstationAccessProfile
       Tags:
@@ -556,7 +514,7 @@ Resources:
       InstanceType: !Ref WorkloadInstanceType
       IamInstanceProfile: !Ref 'WorkstationAccessProfile'
       SecurityGroups: [!Ref 'WorkstationSG', !Ref 'CollaborationSG']
-      ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", NVIDIAWIN]
+      ImageId: !Ref ImageId
       BlockDeviceMappings:
         - Ebs:
             VolumeType: gp3
