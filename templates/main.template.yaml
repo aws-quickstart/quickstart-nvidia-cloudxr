@@ -33,7 +33,6 @@ Metadata:
         default: VRED Amazon EC2 Instance configuration
       Parameters:
       - WorkloadInstanceType
-#      - CloudxrAMI
       - CloudxrStorageVolumeSize
       - KeyPairName
       - InstanceCount
@@ -73,8 +72,6 @@ Metadata:
         default: Workload servers EC2 Instance type
       VredInstanceTag:
         default: EC2 Instance Tag (Environment)
-#      CloudxrAMI:
-#        default: Workload servers Cloudxr version
       CloudxrStorageVolumeSize:
         default: Secondary EBS volume size
       KeyPairName:
@@ -181,13 +178,6 @@ Parameters:
     Default: g4dn.2xlarge
     Description: The Amazon EC2 instance type for the Autodesk VRED instances.
     Type: String
-#  CloudxrAMI:
-#    Type: String
-#    Description: CloudXR Version with Winserver 2019
-#    Default: Cloudxr3_1
-#    AllowedValues:
-#      - Cloudxr3_1
-#      - Cloudxr2_1
   VredInstanceTag:
     Type: String
     Default: VRED
@@ -240,11 +230,6 @@ Parameters:
     Type: String
     Default: replace-me-quickstart-nvidia-cloudxr-media/my_scene.vpb
 
-#Mappings:
-#  AMI:
-#    Alias:
-#      Cloudxr3_1: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.1-vgpu-13.1
-#      Cloudxr2_1: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-2.1.29897464-vgpu-12.1
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 
