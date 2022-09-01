@@ -1,5 +1,5 @@
 <#PSScriptInfo
-.VERSION 1.0
+.VERSION 1.1
 .GUID 99043890-70d0-4691-af9f-8a315ae9deef
 .AUTHOR norman.geiersbach@autodesk.com
 .COMPANYNAME Autodesk
@@ -7,23 +7,49 @@
 #>
 
 <#
-.DESCRIPTION
- A script to install SteamVR, CloudXR and VRED Core on an AWS EC2 Windows instance.
+  .DESCRIPTION
+  A script that downloads, installs and configures SteamVR, CloudXR and VRED Core on an AWS EC2 Windows instance.
+
+  .PARAMETER S3Bucket
+  AWS S3 bucket to download binaries and the VRED scene file from.
+
+  .PARAMETER InstallerPrefix
+  AWS S3 bucket key prefix for the binaries and installers, e.g. "PathToBinaries/".
+
+  .PARAMETER SceneKeyOrUrl
+  The URL to the VRED scene on a web server or the key on the AWS S3 bucket, e.g. "http://example.com/vred.vpb" or "PathToScene/vred.vpb".
+
+  .PARAMETER LicenseServer
+  The address of the Autodesk license server, e.g. "127.0.0.1" or "2080@192.168.188.1".
+
+  .PARAMETER CollaborationServer
+  The address of the VRED collaboration server, e.g. "10.128.0.100".
+
+  .PARAMETER AccessKey
+  The optional AWS access key for the S3 bucket.
+
+  .PARAMETER SecretKey
+  The optional AWS secret key for the S3 bucket.
 #>
 Param (
-  [parameter(Mandatory=$true, HelpMessage="The optional AWS S3 bucket.")]
-  [String]
-  $S3Bucket,
-  [parameter(Mandatory=$true, HelpMessage="The name of the vred core installer.")]
-  [String]
-  $KeyPrefix,
-  [parameter(Mandatory=$false, HelpMessage="The AWS access key for the user account.")]
-  [String]
-  $AccessKey,
-  [parameter(Mandatory=$false, HelpMessage="The AWS secret key for the user account.")]
-  [String]
-  $SecretKey
+  [parameter(mandatory)]
+  [string] $S3Bucket,
+  [parameter(mandatory)]
+  [string] $InstallerPrefix,
+  [parameter(mandatory)]
+  [string] $SceneKeyOrUrl,
+  [parameter(mandatory)]
+  [string] $LicenseServer,
+  [parameter(mandatory)]
+  [string] $CollaborationServer,
+  [parameter()]
+  [string] $AccessKey,
+  [parameter()]
+  [string] $SecretKey
 )
+
+$dataPath = "C:\Autodesk\VRED"
+$steamInstPath = "C:\SteamVR"
 
 Import-Module -Name $PSScriptRoot\vred-library.psm1 -Force
 
@@ -37,19 +63,28 @@ Set-MpPreference -DisableRealtimeMonitoring $true
 Start-Process "sc.exe" -ArgumentList "stop wuauserv"
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name NoAutoUpdate -Value 1
 
+
+####################################################################################################
+# Download installer binaries
+####################################################################################################
+
 # Create tempoary folder
 $tempPath = New-TempFolder
 
 # Copy installer from AWS S3 bucket to temporary directory
-# Find documentation here: https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/AmazonS3.html
 Write-Output "Copy installer files from AWS S3 bucket '$S3Bucket' to local temp folder '$tempPath'" | Timestamp
 if (![string]::IsNullOrWhiteSpace($AccessKey) -or ![string]::IsNullOrWhiteSpace($SecretKey)) {
   # Copy installer files
-  Copy-S3Object -BucketName $S3Bucket -KeyPrefix $KeyPrefix -LocalFolder $tempPath -AccessKey $AccessKey -SecretKey $SecretKey
+  Copy-S3Object -BucketName $S3Bucket -KeyPrefix $InstallerPrefix -LocalFolder $tempPath -AccessKey $AccessKey -SecretKey $SecretKey
 } else {
   # Copy installer files
-  Copy-S3Object -BucketName $S3Bucket -KeyPrefix $KeyPrefix -LocalFolder $tempPath
+  Copy-S3Object -BucketName $S3Bucket -KeyPrefix $InstallerPrefix -LocalFolder $tempPath
 }
+
+
+####################################################################################################
+# Install VRED Core and set the license server
+####################################################################################################
 
 # Find sfx files of VRED Core installer and sort them alphabetically
 # Expects Autodesk sfx installer files e.g. Autodesk_VREDCOR_2023_0_0_Enu_Win_64bit_dlm_001_002.sfx.exe
@@ -87,36 +122,102 @@ Write-Output "Run VRED Core installer '$vredInstPath'." | Timestamp
 Start-Process -FilePath $vredInstPath -Wait
 Write-Output "VRED Core installation completed." | Timestamp
 
+# Change license to new server
+Set-AdskLicense $LicenseServer
+
+
+####################################################################################################
+# Download scene and create python script for VRED initialization
+####################################################################################################
+
+# Create data folder
+[Void](New-Item -Type Directory -Path $dataPath -Force)
+
+# Path to scene file in temp folder
+$scenePath = Join-Path $dataPath $SceneKeyOrUrl
+
+# Copy scene file from AWS S3 bucket or web server to temporary directory
+if (![string]::IsNullOrWhiteSpace($S3Bucket)) {
+  Write-Output "Copy scene file from AWS S3 bucket '$S3Bucket' to local temp folder" | Timestamp
+
+  if (![string]::IsNullOrWhiteSpace($AccessKey) -or ![string]::IsNullOrWhiteSpace($SecretKey)) {
+    Copy-S3Object -BucketName $S3Bucket -Key $SceneKeyOrUrl -LocalFolder $dataPath -AccessKey $AccessKey -SecretKey $SecretKey
+  } else {
+    Copy-S3Object -BucketName $S3Bucket -Key $SceneKeyOrUrl -LocalFolder $dataPath
+  }
+} elseif (Test-UriScheme($SceneKeyOrUrl, @("http", "https"))) {
+  Write-Output "Download scene file from '$SceneKeyOrUrl' to local temp folder" | Timestamp
+
+  # Extract filename from scene address and update path
+  $sceneFilename = Split-Path -Path $SceneKeyOrUrl -Leaf
+  $scenePath = Join-Path $dataPath $sceneFilename
+
+  Invoke-WebRequest $SceneKeyOrUrl -OutFile $scenePath
+}
+
+# Set public IP or hostname as username for collaboration session
+$collaborationName = Get-PublicIP
+if ($collaborationName -eq "") { $collaborationName = hostname; }
+Write-Output "Collaboration name is $collaborationName" | Timestamp
+
+# Create post python script
+$vredScript = Get-InitScript $CollaborationServer $collaborationName
+$postPythonPath = Join-Path $dataPath "vred.py"
+Set-Content $postPythonPath $vredScript -Encoding utf8
+
+
+####################################################################################################
+# Install and configure SteamVR and CloudXR
+####################################################################################################
+
 # Extract SteamVR files
 $steamZipPath = Join-Path $tempPath "SteamVR.zip"
-$steamInstPath = "$env:USERPROFILE\Desktop\SteamVR"
 Expand-Archive -LiteralPath $steamZipPath -DestinationPath $steamInstPath -Force
 
 # Install CloudXR
 Write-Output "Install CloudXR" | Timestamp
 Start-Process -FilePath "$env:USERPROFILE\Desktop\3.1-CloudXR-SDK(11-12-2021)\Installer\CloudXR-Setup.exe" -ArgumentList "/S /FORCE=1" -Wait
 
-Write-Output "Configure SteamVR" | Timestamp
-$steamRegPath = Join-Path $steamInstPath "\bin\win64\vrpathreg.exe"
-$steamConfigPath = "$env:USERPROFILE\AppData\Local\openvr\config"
-$steamLogPath = "$env:USERPROFILE\AppData\Local\openvr\logs"
-Start-Process -FilePath $steamRegPath -ArgumentList "setconfig $steamConfigPath" -Wait
-Start-Process -FilePath $steamRegPath -ArgumentList "setlog $steamLogPath" -Wait
-Start-Process -FilePath $steamRegPath -ArgumentList "setruntime $steamInstPath" -Wait
-Start-Process -FilePath $steamRegPath -ArgumentList 'adddriver "C:\Program Files\NVIDIA Corporation\CloudXR\VRDriver\CloudXRRemoteHMD"' -Wait
-
-Write-Output "Check SteamVR configuration" | Timestamp
-Start-Process -FilePath $steamRegPath -ArgumentList "show" -Wait -NoNewWindow
-
 # Add firewall rule for SteamVR
 $steamVRServerPath = Join-Path $steamInstPath "bin\win64\vrserver.exe"
-New-NetFirewallRule -DisplayName "CloudXR SteamVR Server" -Direction Inbound -Program $steamVRServerPath -Action Allow
+New-NetFirewallRule -DisplayName "CloudXR SteamVR Server" -Direction Inbound -Program $steamVRServerPath -Action Allow | Out-Null
 
-# Start SteamVR
-# https://vrcollab.com/help/install-steamvr-in-an-enterprise-or-government-use-environment/
-$steamVRPath = Join-Path $steamInstPath "bin\win64\vrstartup.exe"
-Start-Process -FilePath $steamVRPath
-Write-Output "SteamVR started."
+
+####################################################################################################
+# Create local user account, enable auto-logon and create a scheduled task to startup everything
+####################################################################################################
+
+# Create a new local administrator account and enable auto-logon
+try {
+  $userName = "CloudXRAdmin"
+  $password = $(Get-RandomPassword 24)
+  $user = New-LocalUser -Password $(ConvertTo-SecureString -AsPlainText -Force $password) -Name $userName -FullName $userName -Description "Administrator for CloudXR, SteamVR and VRED" -AccountNeverExpires:$true
+  Add-LocalGroupMember -Group administrators -Member $user
+  Set-AutoLogon $userName $password 65535
+} catch {
+  Write-Output "Create a local administrator and enable auto-logon failed:`n$Error" | Timestamp
+}
+
+# Register a scheduled task
+try {
+  $taskName = "PSStartVRED"
+  $taskPrincipal = New-ScheduledTaskPrincipal -UserId "$env:ComputerName\CloudXRAdmin" -Logontype Interactive -RunLevel Highest
+  $taskAction = New-ScheduledTaskAction `
+      -Execute "powershell.exe" `
+      -Argument "-File $PSScriptRoot\run-vred.ps1"
+
+  $jobTrigger = New-JobTrigger -AtLogOn -User *
+  Register-ScheduledJob -Trigger $jobTrigger -FilePath "$PSScriptRoot\run-vred.ps1" -Name $taskName
+  Set-ScheduledTask -TaskName $taskName `
+      -TaskPath Microsoft\Windows\PowerShell\ScheduledJobs `
+      -Action $taskAction `
+      -Principal $taskPrincipal
+} catch {
+  Write-Output "Create a scheduled task failed:`n$Error" | Timestamp
+}
 
 # Re-enable Windows Defender Realtime Protection to speed up the installation
 Set-MpPreference -DisableRealtimeMonitoring $false
+
+# Restart to auto logon the new created user
+Restart-Computer
