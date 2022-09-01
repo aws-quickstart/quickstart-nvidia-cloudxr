@@ -78,6 +78,11 @@ if (![string]::IsNullOrWhiteSpace($S3Bucket)) {
   Invoke-WebRequest $Scene -OutFile $scenePath
 }
 
+# Set public IP or hostname as username for collaboration session
+$CollaborationName = Get-PublicIP
+if ($CollaborationName -eq "") { $CollaborationName = hostname; }
+Write-Output "Collaboration name is $CollaborationName" | Timestamp
+
 # Loop until VRED Core is running properly
 $started = $false
 $serverRunning = $false
@@ -108,7 +113,7 @@ do {
     # Run initial python script if running
     if ($serverRunning) {
       Initialize-VredForCloudXR
-      Join-VredCollaboration $CollaborationServer
+      Join-VredCollaboration -Address $CollaborationServer -UserName $CollaborationName
     }
   } else {
     Write-Output "VRED Core has exited!" | Timestamp

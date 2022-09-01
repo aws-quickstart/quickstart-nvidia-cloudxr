@@ -25,10 +25,14 @@ Param (
   $SecretKey
 )
 
+Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
+
 # Disable Windows Defender Realtime Protection to speed up the installation
 Set-MpPreference -DisableRealtimeMonitoring $true
 
-Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
+# Disable Windows updates to prevent a restart of the instance
+Start-Process "sc.exe" -ArgumentList "stop wuauserv"
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name NoAutoUpdate -Value 1
 
 # Create tempoary folder
 $tempPath = New-TempFolder
@@ -89,12 +93,21 @@ Expand-Archive -LiteralPath $steamZipPath -DestinationPath $steamInstPath -Force
 Write-Output "Install CloudXR" | Timestamp
 Start-Process -FilePath "$env:USERPROFILE\Desktop\3.1-CloudXR-SDK(11-12-2021)\Installer\CloudXR-Setup.exe" -ArgumentList "/S /FORCE=1" -Wait
 
-Write-Output "Register VRPath" | Timestamp
+Write-Output "Configure SteamVR" | Timestamp
 $steamRegPath = Join-Path $steamInstPath "\bin\win64\vrpathreg.exe"
-Start-Process -FilePath $steamRegPath -ArgumentList 'adddriver "C:\Program Files\NVIDIA Corporation\CloudXR\VRDriver\CloudXRRemoteHMD"' -Wait -NoNewWindow
+$steamConfigPath = "$env:USERPROFILE\AppData\Local\openvr\config"
+$steamLogPath = "$env:USERPROFILE\AppData\Local\openvr\logs"
+Start-Process -FilePath $steamRegPath -ArgumentList "setconfig $steamConfigPath" -Wait
+Start-Process -FilePath $steamRegPath -ArgumentList "setlog $steamLogPath" -Wait
+Start-Process -FilePath $steamRegPath -ArgumentList "setruntime $steamInstPath" -Wait
+Start-Process -FilePath $steamRegPath -ArgumentList 'adddriver "C:\Program Files\NVIDIA Corporation\CloudXR\VRDriver\CloudXRRemoteHMD"' -Wait
 
-Write-Output "Check CloudXR driver in SteamVR" | Timestamp
+Write-Output "Check SteamVR configuration" | Timestamp
 Start-Process -FilePath $steamRegPath -ArgumentList "show" -Wait -NoNewWindow
+
+# Add firewall rule for SteamVR
+$steamVRServerPath = Join-Path $steamInstPath "bin\win64\vrserver.exe"
+New-NetFirewallRule -DisplayName "CloudXR SteamVR Server" -Direction Inbound -Program $steamVRServerPath -Action Allow
 
 # Start SteamVR
 # https://vrcollab.com/help/install-steamvr-in-an-enterprise-or-government-use-environment/
