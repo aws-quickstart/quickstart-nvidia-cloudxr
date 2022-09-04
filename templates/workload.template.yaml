@@ -331,7 +331,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:GetObject
-                Resource: !Sub "arn:aws:s3:::dcv-license.${AWS::Region}/*"
+                Resource: !Sub "arn:${AWS::Partition}:s3:::dcv-license.${AWS::Region}/*"
 
   WorkstationAccessProfile:
     Type: "AWS::IAM::InstanceProfile"
