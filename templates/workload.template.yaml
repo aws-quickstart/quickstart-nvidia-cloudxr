@@ -331,7 +331,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:GetObject
-                Resource: !Sub "arn:aws:s3:::dcv-license.${AWS::Region}/*"
+                Resource: !Sub "arn:${AWS::Partition}:s3:::dcv-license.${AWS::Region}/*"
 
   WorkstationAccessProfile:
     Type: "AWS::IAM::InstanceProfile"
@@ -363,22 +363,14 @@ Resources:
                 - - powershell.exe -Command "C:\cfn\scripts\install-vred.ps1
                     -S3Bucket '
                   - !Ref MediaS3Bucket
-                  - ''' -KeyPrefix '''
+                  - ''' -InstallerPrefix '''
                   - !Ref MediaS3Key
-                  - '''"'
-            b-run-vred:
-              command:
-                !Join
-                - ''
-                - - powershell.exe -Command "C:\cfn\scripts\run-vred.ps1
-                    -LicenseServer '
+                  - ''' -SceneKeyOrUrl '''
+                  - !Ref SceneAddress
+                  - ''' -LicenseServer '''
                   - !Ref LicenseServerIP
                   - ''' -CollaborationServer '''
                   - !Ref PrimaryNodeIP
-                  - ''' -S3Bucket '''
-                  - !Ref MediaS3Bucket
-                  - ''' -Scene '''
-                  - !Ref SceneAddress
                   - '''"'
           files:
             C:\cfn\scripts\install-vred.ps1:
@@ -472,22 +464,14 @@ Resources:
                 - - powershell.exe -Command "C:\cfn\scripts\install-vred.ps1
                     -S3Bucket '
                   - !Ref MediaS3Bucket
-                  - ''' -KeyPrefix '''
+                  - ''' -InstallerPrefix '''
                   - !Ref MediaS3Key
-                  - '''"'
-            b-run-vred:
-              command:
-                !Join
-                - ''
-                - - powershell.exe -Command "C:\cfn\scripts\run-vred.ps1
-                    -LicenseServer '
+                  - ''' -SceneKeyOrUrl '''
+                  - !Ref SceneAddress
+                  - ''' -LicenseServer '''
                   - !Ref LicenseServerIP
                   - ''' -CollaborationServer '''
                   - !Ref PrimaryNodeIP
-                  - ''' -S3Bucket '''
-                  - !Ref MediaS3Bucket
-                  - ''' -Scene '''
-                  - !Ref SceneAddress
                   - '''"'
           files:
             C:\cfn\scripts\install-vred.ps1:

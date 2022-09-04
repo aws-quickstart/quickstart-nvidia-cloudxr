@@ -1,5 +1,5 @@
 <#PSScriptInfo
-.VERSION 1.0
+.VERSION 1.1
 .GUID 72a30cce-f70c-4994-9a3e-217e83217346
 .AUTHOR norman.geiersbach@autodesk.com
 .COMPANYNAME Autodesk
@@ -7,119 +7,67 @@
 #>
 
 <#
-.DESCRIPTION
- A script to start VRED Core on an AWS EC2 Windows instance.
- It handles the following tasks:
- * Set the license server Autodesk VRED
- * Download a VRED scene file to a temporary directory or
- * Copy VRED scene file from AWS S3 bucket to a temporary directory
- * Start VRED Core with scene file
- * Run python script to switch display mode as soon a HMD is available
- * Run python script to connect VRED to a collaboration session
+  .DESCRIPTION
+   A script to start SteamVR and VRED Core on an AWS EC2 Windows instance.
 #>
-Param (
-  [parameter(Mandatory=$true, HelpMessage="The address of the ADSK license server.")]
-  [String]
-  $LicenseServer,
-  [parameter(Mandatory=$true, HelpMessage="The address of the VRED collaboration server.")]
-  [String]
-  $CollaborationServer,
-  [parameter(Mandatory=$true, HelpMessage="The Url to the VRED scene on a web server or the path on an AWS S3 bucket.")]
-  [String]
-  $Scene,
-  [parameter(Mandatory=$false, HelpMessage="The AWS S3 bucket.")]
-  [String]
-  $S3Bucket,
-  [parameter(Mandatory=$false, HelpMessage="The AWS access key for the S3 user account.")]
-  [String]
-  $AccessKey,
-  [parameter(Mandatory=$false, HelpMessage="The AWS secret key for the S3 user account.")]
-  [String]
-  $SecretKey
-)
 
-Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
+$dataPath = "C:\Autodesk\VRED"
+$steamInstPath = "C:\SteamVR"
+$log = Join-Path $dataPath "auto-start-$(Get-Date -Format "yyyyMMdd-HHmmss").log"
 
-# Add Type System.Web if not already added
-try {
-  [System.Web.HttpUtility]$HttpUtilityTest
+# Create data folder
+[Void](New-Item -Type Directory -Path $dataPath -Force)
+
+# Create log file
+Set-Content -Path $log -Value @"
+Start SteamVR and VRED Core
+Current user: $env:UserName
+Location: $(Get-Location)
+Script root: $PSScriptRoot
+
+"@
+
+try
+{
+  # Load script module
+  if ($PSScriptRoot -eq "" -or $PSScriptRoot -eq $null) {
+    Import-Module -Name C:\cfn\scripts\vred-library.psm1 -Force
+  } else {
+    Import-Module -Name $PSScriptRoot\vred-library.psm1 -Force
+  }
+
+  # Configure SteamVR
+  Add-Content $log ("Configure SteamVR .." | Timestamp)
+  $steamRegPath = Join-Path $steamInstPath "\bin\win64\vrpathreg.exe"
+  $steamConfigPath = "$env:USERPROFILE\AppData\Local\openvr\config"
+  $steamLogPath = "$env:USERPROFILE\AppData\Local\openvr\logs"
+  Start-Process -FilePath $steamRegPath -ArgumentList "setconfig $steamConfigPath" -Wait
+  Start-Process -FilePath $steamRegPath -ArgumentList "setlog $steamLogPath" -Wait
+  Start-Process -FilePath $steamRegPath -ArgumentList "setruntime $steamInstPath" -Wait
+  Start-Process -FilePath $steamRegPath -ArgumentList 'adddriver "C:\Program Files\NVIDIA Corporation\CloudXR\VRDriver\CloudXRRemoteHMD"' -Wait
+
+  Add-Content $log ("Check SteamVR configuration .." | Timestamp)
+  Start-Process -FilePath $steamRegPath -ArgumentList "show" -Wait -NoNewWindow
+
+  # Start SteamVR
+  $steamVRPath = Join-Path $steamInstPath "bin\win64\vrstartup.exe"
+  Start-Process -FilePath $steamVRPath
+  Add-Content $log ("SteamVR started." | Timestamp)
+
+  # Find a scene file recursively in the data folder
+  $scenes = @(Get-ChildItem -Path $dataPath -Filter *.vpb -File -Recurse -ErrorAction SilentlyContinue | ForEach-Object {"$($_.FullName)"})
+  if ($scenes.count -eq 0) {
+    Add-Content $log ("No VRED scene file found at $dataPath." | Timestamp)
+    exit 1
+  }
+
+  # Path to python script
+  $postPythonPath = Join-Path $dataPath "vred.py"
+
+  # Start VRED Core with first scene file found
+  Invoke-VredCore $scenes[0] $postPythonPath
+  Add-Content $log ("VRED Core is starting with scene `"$($scenes[0])`"" | Timestamp)
 } catch {
-  Add-Type -AssemblyName System.Web
+  Add-Content $log ("Auto-start VRED Core failed:`n$Error" | Timestamp)
+  throw $_
 }
-
-# Change license to new server
-Set-AdskLicense $LicenseServer
-
-# Create temp folder
-$tempPath = New-TempFolder
-
-# Path to scene file in temp folder
-$scenePath = Join-Path $tempPath $Scene
-
-# Copy scene file from AWS S3 bucket or web server to temporary directory
-if (![string]::IsNullOrWhiteSpace($S3Bucket)) {
-  Write-Output "Copy scene file from AWS S3 bucket '$S3Bucket' to local temp folder" | Timestamp
-
-  if (![string]::IsNullOrWhiteSpace($AccessKey) -or ![string]::IsNullOrWhiteSpace($SecretKey)) {
-    Copy-S3Object -BucketName $S3Bucket -Key $Scene -LocalFolder $tempPath -AccessKey $AccessKey -SecretKey $SecretKey
-  } else {
-    Copy-S3Object -BucketName $S3Bucket -Key $Scene -LocalFolder $tempPath
-  }
-} elseif (Test-UriScheme($Scene, @("http", "https"))) {
-  Write-Output "Download scene file from '$Scene' to local temp folder" | Timestamp
-
-  # Improve download performance by disabling the display of progress
-  $ProgressPreference = 'SilentlyContinue'
-
-  # Extract filename from scene address and update path
-  $sceneFilename = Split-Path -Path $Scene -Leaf
-  $scenePath = Join-Path $tempPath $sceneFilename
-
-  Invoke-WebRequest $Scene -OutFile $scenePath
-}
-
-# Set public IP or hostname as username for collaboration session
-$CollaborationName = Get-PublicIP
-if ($CollaborationName -eq "") { $CollaborationName = hostname; }
-Write-Output "Collaboration name is $CollaborationName" | Timestamp
-
-# Loop until VRED Core is running properly
-$started = $false
-$serverRunning = $false
-do {
-  $running = Get-Process VREDCore -ErrorAction SilentlyContinue
-  if (!$running -and !$started)
-  {
-    # Start VRED Core
-    try {
-      Invoke-VredCore $scenePath
-      Write-Output "VRED Core is starting with scene $scenePath" | Timestamp
-      $started = $true
-    } catch [InvalidOperationException] {
-      Write-Output "VRED Core failed to start" | Timestamp
-      Write-Host -ForegroundColor Red $_
-      exit 1
-    }
-  } elseif ($running) {
-    # Check for VRED web interface
-    try {
-      $response = Invoke-WebRequest "http://localhost:8888/isrunning" #-SkipHttpErrorCheck
-      if ($response.Content -eq "1") {
-        Write-Output "VRED Core is ready to use." | Timestamp
-        $serverRunning = $true
-      }
-    } catch {}
-
-    # Run initial python script if running
-    if ($serverRunning) {
-      Initialize-VredForCloudXR
-      Join-VredCollaboration -Address $CollaborationServer -UserName $CollaborationName
-    }
-  } else {
-    Write-Output "VRED Core has exited!" | Timestamp
-    break
-  }
-
-  # Idle 2 seconds before the next check to reduce CPU load
-  if (!$serverRunning) { Start-Sleep -s 2 }
-} while (!$serverRunning)
