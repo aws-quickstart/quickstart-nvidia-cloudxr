@@ -19,6 +19,8 @@ tests:
       PublicRemoteCidr: 0.0.0.0/0
       QSS3BucketName: $[taskcat_autobucket]
       QSS3BucketRegion: $[taskcat_current_region]
+      MediaS3Bucket: override
+      MediaS3Key: override
       SceneAddress: override
     regions:
       - eu-central-1
