@@ -435,6 +435,10 @@ Resources:
             - '
 
               '
+            - 'shutdown -r -f -t 0'
+            - '
+
+              '
             - '</script>'
     CreationPolicy:
         ResourceSignal:

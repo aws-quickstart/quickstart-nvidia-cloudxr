@@ -210,7 +210,7 @@ try {
       -Execute "powershell.exe" `
       -Argument "-File $PSScriptRoot\run-vred.ps1"
 
-  $jobTrigger = New-JobTrigger -AtLogOn -User *
+  $jobTrigger = New-JobTrigger -AtLogOn -User "$env:ComputerName\CloudXRAdmin"
   Register-ScheduledJob -Trigger $jobTrigger -FilePath "$PSScriptRoot\run-vred.ps1" -Name $taskName | Out-Null
   Set-ScheduledTask -TaskName $taskName `
       -TaskPath Microsoft\Windows\PowerShell\ScheduledJobs `
@@ -223,6 +223,3 @@ try {
 
 # Re-enable Windows Defender Realtime Protection to speed up the installation
 Set-MpPreference -DisableRealtimeMonitoring $false
-
-# Restart to auto logon the new created user
-Restart-Computer
