@@ -211,11 +211,12 @@ try {
       -Argument "-File $PSScriptRoot\run-vred.ps1"
 
   $jobTrigger = New-JobTrigger -AtLogOn -User *
-  Register-ScheduledJob -Trigger $jobTrigger -FilePath "$PSScriptRoot\run-vred.ps1" -Name $taskName
+  Register-ScheduledJob -Trigger $jobTrigger -FilePath "$PSScriptRoot\run-vred.ps1" -Name $taskName | Out-Null
   Set-ScheduledTask -TaskName $taskName `
       -TaskPath Microsoft\Windows\PowerShell\ScheduledJobs `
       -Action $taskAction `
-      -Principal $taskPrincipal
+      -Principal $taskPrincipal `
+      | Out-Null
 } catch {
   Write-Output "Create a scheduled task failed:`n$Error" | Timestamp
 }
