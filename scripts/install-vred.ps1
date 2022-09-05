@@ -175,8 +175,12 @@ $steamZipPath = Join-Path $tempPath "SteamVR.zip"
 Expand-Archive -LiteralPath $steamZipPath -DestinationPath $steamInstPath -Force
 
 # Install CloudXR
-Write-Output "Install CloudXR" | Timestamp
-Start-Process -FilePath "$env:USERPROFILE\Desktop\3.1-CloudXR-SDK(11-12-2021)\Installer\CloudXR-Setup.exe" -ArgumentList "/S /FORCE=1" -Wait
+$cxrInstPath = "$env:USERPROFILE\Desktop\3.1-CloudXR-SDK(11-12-2021)"
+if ($Env:CloudXR_SDK -ne $null) {
+  $cxrInstPath = $Env:CloudXR_SDK
+}
+Write-Output "Install CloudXR from $cxrInstPath" | Timestamp
+Start-Process -FilePath (Join-Path $cxrInstPath "Installer\CloudXR-Setup.exe") -ArgumentList "/S /FORCE=1" -Wait
 
 # Add firewall rule for SteamVR
 $steamVRServerPath = Join-Path $steamInstPath "bin\win64\vrserver.exe"
@@ -206,18 +210,16 @@ try {
       -Execute "powershell.exe" `
       -Argument "-File $PSScriptRoot\run-vred.ps1"
 
-  $jobTrigger = New-JobTrigger -AtLogOn -User *
-  Register-ScheduledJob -Trigger $jobTrigger -FilePath "$PSScriptRoot\run-vred.ps1" -Name $taskName
+  $jobTrigger = New-JobTrigger -AtLogOn -User "$env:ComputerName\CloudXRAdmin"
+  Register-ScheduledJob -Trigger $jobTrigger -FilePath "$PSScriptRoot\run-vred.ps1" -Name $taskName | Out-Null
   Set-ScheduledTask -TaskName $taskName `
       -TaskPath Microsoft\Windows\PowerShell\ScheduledJobs `
       -Action $taskAction `
-      -Principal $taskPrincipal
+      -Principal $taskPrincipal `
+      | Out-Null
 } catch {
   Write-Output "Create a scheduled task failed:`n$Error" | Timestamp
 }
 
 # Re-enable Windows Defender Realtime Protection to speed up the installation
 Set-MpPreference -DisableRealtimeMonitoring $false
-
-# Restart to auto logon the new created user
-Restart-Computer
