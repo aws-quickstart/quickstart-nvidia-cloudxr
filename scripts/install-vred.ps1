@@ -175,8 +175,12 @@ $steamZipPath = Join-Path $tempPath "SteamVR.zip"
 Expand-Archive -LiteralPath $steamZipPath -DestinationPath $steamInstPath -Force
 
 # Install CloudXR
-Write-Output "Install CloudXR" | Timestamp
-Start-Process -FilePath "$env:USERPROFILE\Desktop\3.1-CloudXR-SDK(11-12-2021)\Installer\CloudXR-Setup.exe" -ArgumentList "/S /FORCE=1" -Wait
+$cxrInstPath = "$env:USERPROFILE\Desktop\3.1-CloudXR-SDK(11-12-2021)"
+if ($Env:CloudXR_SDK -ne $null) {
+  $cxrInstPath = $Env:CloudXR_SDK
+}
+Write-Output "Install CloudXR from $cxrInstPath" | Timestamp
+Start-Process -FilePath (Join-Path $cxrInstPath "Installer\CloudXR-Setup.exe") -ArgumentList "/S /FORCE=1" -Wait
 
 # Add firewall rule for SteamVR
 $steamVRServerPath = Join-Path $steamInstPath "bin\win64\vrserver.exe"
