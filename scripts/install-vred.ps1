@@ -192,8 +192,8 @@ New-NetFirewallRule -DisplayName "CloudXR SteamVR Server" -Direction Inbound -Pr
 ####################################################################################################
 
 # Create a new local administrator account and enable auto-logon
+$userName = "CloudXRAdmin"
 try {
-  $userName = "CloudXRAdmin"
   $password = $(Get-RandomPassword 24)
   $user = New-LocalUser -Password $(ConvertTo-SecureString -AsPlainText -Force $password) -Name $userName -FullName $userName -Description "Administrator for CloudXR, SteamVR and VRED" -AccountNeverExpires:$true
   Add-LocalGroupMember -Group administrators -Member $user
@@ -204,13 +204,14 @@ try {
 
 # Register a scheduled task
 try {
+  Write-Output "Create a scheduled task to run VRED at logon of $env:ComputerName\$userName" | Timestamp
   $taskName = "PSStartVRED"
-  $taskPrincipal = New-ScheduledTaskPrincipal -UserId "$env:ComputerName\CloudXRAdmin" -Logontype Interactive -RunLevel Highest
+  $taskPrincipal = New-ScheduledTaskPrincipal -UserId "$env:ComputerName\$userName" -Logontype Interactive -RunLevel Highest
   $taskAction = New-ScheduledTaskAction `
       -Execute "powershell.exe" `
       -Argument "-File $PSScriptRoot\run-vred.ps1"
 
-  $jobTrigger = New-JobTrigger -AtLogOn -User "$env:ComputerName\CloudXRAdmin"
+  $jobTrigger = New-JobTrigger -AtLogOn -User "$env:ComputerName\$userName"
   Register-ScheduledJob -Trigger $jobTrigger -FilePath "$PSScriptRoot\run-vred.ps1" -Name $taskName | Out-Null
   Set-ScheduledTask -TaskName $taskName `
       -TaskPath Microsoft\Windows\PowerShell\ScheduledJobs `
@@ -223,3 +224,5 @@ try {
 
 # Re-enable Windows Defender Realtime Protection to speed up the installation
 Set-MpPreference -DisableRealtimeMonitoring $false
+
+Write-Output "Installation and configuration completed" | Timestamp
