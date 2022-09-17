@@ -103,7 +103,7 @@ Export-ModuleMember -Function Get-ExecutablePath
 #>
 function Get-PublicIP {
   try {
-    return (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+    return (Invoke-WebRequest -uri "http://169.254.169.254/latest/meta-data/public-ipv4").Content
   } catch {
     return ""
   }
