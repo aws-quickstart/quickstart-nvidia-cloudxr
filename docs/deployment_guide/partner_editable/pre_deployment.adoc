@@ -18,7 +18,7 @@ Accept the Terms and Conditions to activate the subscription (this may take a fe
 
 //*Instructions to create S3 bucket and prefix for media repository
 
-* https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[Create an S3 bucket] to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region into which you will deploy the Quick Start.
+* https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[Create an S3 bucket] to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region into which you will deploy the Partner Solution.
 
 * Optionally, create an S3 key prefix to organize the binaries stored in the S3 bucket.
 
@@ -53,10 +53,12 @@ Accept the Terms and Conditions to activate the subscription (this may take a fe
 * Copy all installer *.sfx.exe files to your AWS media S3 bucket.
 
 [#predeployment1]
+.All Products and Services
 image::../docs/deployment_guide/images/image1.png[predeployment1]
 
 [#predeployment2]
+.VRED Core download page
 image::../docs/deployment_guide/images/image2.png[predeployment2]
 
-[#predeployment3]
-image::../docs/deployment_guide/images/image3.png[predeployment3]
+//[#predeployment3]
+//image::../docs/deployment_guide/images/image3.png[predeployment3]
