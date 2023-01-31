@@ -3,11 +3,12 @@
 :partner-product-name: VRED and CloudXR
 :partner-product-short-name: VRED
 :partner-company-name: Autodesk
-:doc-month: January
+:doc-month: February
 :doc-year: 2023
 // :partner-contributors: John Smith, {partner-company-name}
 // :other-contributors: Akua Mansa, Trek10
-:aws-contributors: Sahil Saini, Autodesk Solutions Architect team and Marcos Hernandez Alvarez, AWS Solutions Architect team
+:aws-contributors: Sahil Saini, Autodesk Solutions Architect team
+Marcos Hernandez Alvarez, AWS Solutions Architect team
 :aws-ia-contributors: Dave May, AWS Integration & Automation team
 :deployment_time: 30 minutes
 :default_deployment_region: us-east-1

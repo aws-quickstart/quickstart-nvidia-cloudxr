@@ -5,4 +5,4 @@ This guide covers the information you need to deploy {partner-product-name} on t
 // For information about using this Partner Solution for migrations, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/migration/index.html[Migration Guide^].
 
 For additional information about the product, refer to 
-https://www.autodesk.com/products/vred/features/vred?plc=VRDDES&term=1-YEAR&support=ADVANCED&quantity=1[^VRED].
+https://www.autodesk.com/products/vred/features/vred?plc=VRDDES&term=1-YEAR&support=ADVANCED&quantity=1[VRED^].
