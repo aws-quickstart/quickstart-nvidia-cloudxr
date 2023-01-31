@@ -47,7 +47,7 @@ Create and configure a network interface.
 . Create an EC2 instance from a preconfigured AMI or a new Windows 10 or 11 deployment.
 . Download and install the https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software[Autodesk Network License Manager (NLM)^].
 .. Create a license based on the NLM server name and the MAC address of the ENI.
-... Set up a license file for NLM via LMTools.
+... Set up a license file for NLM using LMTools.
 
 ===  Install Autodesk VRED Core binary
 
