@@ -1,6 +1,6 @@
 :partner-solution-project-name: quickstart-nvidia-cloudxr
 :partner-solution-github-org: aws-quickstart
-:partner-product-name: VRED and CloudXR
+:partner-product-name:  Autodesk VRED and NVIDIA CloudXR
 :partner-product-short-name: VRED
 :partner-company-name: Autodesk
 :doc-month: February
