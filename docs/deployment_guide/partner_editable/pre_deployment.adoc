@@ -8,56 +8,58 @@
 
 //Using the NVIDIA CloudXR AMI Introductory Offer - WinServer 2019 eases installation and delivery of NVIDIA CloudXR. Deploying the Marketplace offering provides the following software and AWS instance configurations: CloudXR Server installer and documentation NICE DCV remote desktop access for developers and non-VR users NICE DCV virtual audio driver—used by CloudXR.
 
-Open https://aws.amazon.com/marketplace[AWS Marketplace^] and search for CloudXR to find the latest listing. 
+Use AWS Marketplace to find CloudXR.
 
+. Open https://aws.amazon.com/marketplace[AWS Marketplace^] and search for CloudXR to find the latest listing. 
 . Review the details and make note of the instance size, AWS pricing, usage, and other details.
-.. Choose *Continue to Subscribe*. 
+. Choose *Continue to Subscribe*. 
+. Accept the Terms and Conditions to activate the subscription (this may take a few minutes). When finished, an effective date displays.
 
 //**Click https://aws.amazon.com/marketplace/pp/prodview-galujeez5ljra[here] to access the AWS/CloudXR Marketplace AMI Listing.
 
-Accept the Terms and Conditions to activate the subscription (this may take a few minutes). When finished, an effective date displays.
+=== Create Amazon Simple Storage Service (Amazon S3) bucket to store binaries
 
-=== Create S3 bucket to store binaries
+Create and configure an Amazon S3 bucket for storage.
 
 //*Instructions to create S3 bucket and prefix for media repository
 
-https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[Create an S3 bucket^] to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region that you deploy the Partner Solution.
+. https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[Create an S3 bucket^] to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region that you deploy the Partner Solution.
 
-* (Optional) Create an S3 key prefix to organize the binaries stored in the S3 bucket.
+. (Optional) Create an S3 key prefix to organize the binaries stored in the S3 bucket.
 
 === Install SteamVR binary
 
 Install the Steam Client to store SteamVR binary.
 
 . Open https://store.steampowered.com/about/[Steam^] to install Steam on a PC with full internet access.
-.. In the Steam Client, open the *Library* section.
-... In the *Tools* section, search for the *SteamVR* entry, and then install it.
-.... Right-click the *SteamVR* entry, and in the the pop-up menu choose *Properties*.
-..... A new window with multiple tabs opens. Choose the *LOCAL FILES* tab, and select *BROWSE LOCAL FILES*.
-...... The directory containing the SteamVR Runtime opens. Compress this entire directory into a .zip file named *SteamVR.zip*. This binary is used to install Steam VR.
-....... Store the SteamVR.zip binary in the previously created S3 bucket.
+. In the Steam Client, open the *Library* section.
+. In the *Tools* section, search for the *SteamVR* entry, and then install it.
+. Right-click the *SteamVR* entry, and in the the pop-up menu choose *Properties*.
+.. A new window with multiple tabs opens. Choose the *LOCAL FILES* tab, and select *BROWSE LOCAL FILES*.
+... The directory containing the SteamVR Runtime opens. Compress this entire directory into a .zip file named *SteamVR.zip*. This binary is used to install Steam VR.
+. Store the SteamVR.zip binary in the previously created Amazon S3 bucket.
 
 === Set up EC2 for Network License management
 
 Create and configure a network interface.
 
 . Create an elastic network interface (ENI) with a fixed MAC address. Refer to https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html/[Elastic network interfaces^]. 
-.. Create an EC2 instance from a preconfigured AMI or a new Windows 10 or 11 deployment.
-... Download and install the https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software[Autodesk Network License Manager (NLM)^].
-.... Create a license based on the NLM server name and the MAC address of the ENI.
-..... Set up a license file for NLM via LMTools.
+. Create an EC2 instance from a preconfigured AMI or a new Windows 10 or 11 deployment.
+. Download and install the https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software[Autodesk Network License Manager (NLM)^].
+.. Create a license based on the NLM server name and the MAC address of the ENI.
+... Set up a license file for NLM via LMTools.
 
 ===  Install Autodesk VRED Core binary
 
 Install and download Autodesk VRED Core binary, as shown in <<predeployment1>> and <<predeployment2>>: 
 
 . Open https://manage.autodesk.com[Autodesk Sign in^]. Disable browser pop-up blockers before downloading.
-.. Sign in with your Autodesk credentials or create an account.
-... On the left, choose *All Products and Services*.
-.... Choose *VRED Core*, and then choose *View downloads*.
-..... Below *Install now*, choose *View all*.
-...... Choose *Browser Download*, and then from the pop-up window choose *Start download*.
-....... Copy all installer *.sfx.exe files to your AWS media S3 bucket.
+. Sign in with your Autodesk credentials or create an account.
+. On the left, choose *All Products and Services*.
+. Choose *VRED Core*, and then choose *View downloads*.
+.. Below *Install now*, choose *View all*.
+... Choose *Browser Download*, and then from the pop-up window choose *Start download*.
+. Copy all installer *.sfx.exe files to your AWS media S3 bucket.
 
 [#predeployment1]
 .All Products and Services
