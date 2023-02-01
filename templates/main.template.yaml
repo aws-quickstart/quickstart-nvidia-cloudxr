@@ -30,7 +30,7 @@ Metadata:
       - PublicSubnet3CIDR
       - PublicRemoteCidr
     - Label:
-        default: VRED Amazon EC2 Instance configuration
+        default: VRED Amazon EC2 instance configuration
       Parameters:
       - WorkloadInstanceType
       - CloudxrStorageVolumeSize
@@ -40,13 +40,13 @@ Metadata:
       - LicenseServerIP
       - VredInstanceTag
     - Label:
-        default: Autodesk VRED 3D Media configuration
+        default: Autodesk VRED 3D media configuration
       Parameters:
       - MediaS3Bucket
       - MediaS3Key
       - SceneAddress
     - Label:
-        default: AWS Quick Start configuration
+        default: AWS Partner Solution configuration
       Parameters:
       - QSS3BucketName
       - QSS3BucketRegion
@@ -57,108 +57,108 @@ Metadata:
       VPCCIDR:
         default: VPC CIDR
       PublicSubnet1CIDR:
-        default: Public Subnet A CIDR
+        default: Public subnet A CIDR
       PublicSubnet2CIDR:
-        default: Public Subnet B CIDR
+        default: Public subnet B CIDR
       PublicSubnet3CIDR:
-        default: Public Subnet C CIDR
+        default: Public subnet C CIDR
       QSS3BucketName:
-        default: Quick Start S3 bucket name
+        default: Partner Solution S3 bucket name
       QSS3BucketRegion:
-        default: Quick Start S3 bucket Region
+        default: Parnter Solution S3 bucket Region
       QSS3KeyPrefix:
-        default: Quick Start S3 key prefix
+        default: Partner Solution S3 key prefix
       WorkloadInstanceType:
-        default: Workload servers EC2 Instance type
+        default: Workload servers EC2 instance type
       VredInstanceTag:
-        default: EC2 Instance Tag (Environment)
+        default: EC2 instance tag (environment)
       CloudxrStorageVolumeSize:
         default: Secondary EBS volume size
       KeyPairName:
-        default: Key-pair name
+        default: Key pair name
       InstanceCount:
-        default: Instance Count
+        default: Instance count
       PublicRemoteCidr:
         default: CIDR for customer access
       PrimaryNodeIP:
         default: Primary node IP address
       LicenseServerIP:
-        default: Network License Manager IP Address
+        default: Network License Manager IP address
       MediaS3Bucket:
-        default: Autodesk VRED 3D Media Bucket
+        default: Autodesk VRED 3D media bucket
       MediaS3Key:
-        default: Autodesk VRED 3D Media Key Prefix
+        default: Autodesk VRED 3D media key prefix
       SceneAddress:
         default: Scene file
 
 Parameters:
 
   AvailabilityZones:
-    Description: Availability Zones to use for the subnets in the VPC.
-      Three Availability Zones are used for this deployment, and the logical order of
+    Description: Availability Zones to use for subnets in VPC.
+      Three Availability Zones are used for this deployment, and logical order of
       your selections is preserved.
     Type: List<AWS::EC2::AvailabilityZone::Name>
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: CIDR block parameter must be in format (x.x.x.x/16-28).
     Default: 10.0.0.0/16
-    Description: CIDR block for the VPC.
+    Description: CIDR block for VPC.
     Type: String
   PublicSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: CIDR block parameter must be in format (x.x.x.x/16-28).
     Default: 10.0.128.0/20
-    Description: CIDR block for the parameter network located in Availability Zone 1.
+    Description: CIDR block for parameter network located in Availability Zone 1.
     Type: String
   PublicSubnet2CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: CIDR block parameter must be in format (x.x.x.x/16-28).
     Default: 10.0.144.0/20
-    Description: CIDR block for the perimeter network located in Availability Zone 2.
+    Description: CIDR block for perimeter network located in Availability Zone 2.
     Type: String
   PublicSubnet3CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: CIDR block parameter must be in format (x.x.x.x/16-28).
     Default: 10.0.160.0/20
-    Description: CIDR block for the parameter network located in Availability Zone 3.
+    Description: CIDR block for parameter network located in Availability Zone 3.
     Type: String
   QSS3BucketName:
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
-      letters, uppercase letters, and hyphens (-). It cannot start or end with a 
-      hyphen (-).
+    AllowedPattern: ^[0-9a-z]+([0-9a-z-\.]*[0-9a-z])*$
+    ConstraintDescription: >-
+      The S3 bucket name can include numbers, lowercase letters, 
+      and hyphens (-), but it cannot start or end with a hyphen.
     Default: aws-quickstart
-    Description: Name of the S3 bucket for your copy of the Quick Start assets. 
-      Keep the default name unless you are customizing the template. 
-      Changing the name updates code references to point to a new Quick 
-      Start location. This name can include numbers, lowercase letters, 
-      uppercase letters, and hyphens, but do not start or end with a hyphen (-). 
-      See https://aws-quickstart.github.io/option1.html.
+    Description: >-
+      Name of the S3 bucket for your copy of the deployment assets. Keep the default
+      name unless you are customizing the template. Changing the name updates code 
+      references to point to a new location.
+    MinLength: 3
+    MaxLength: 63
     Type: String
   QSS3BucketRegion:
-    Default: 'us-east-1'
-    Description: 'AWS Region where the Quick Start S3 bucket (QSS3BucketName) is 
-    hosted. Keep the default Region unless you are customizing the template. 
-    Changing this Region updates code references to point to a new Quick Start location. 
-    When using your own bucket, specify the Region. 
-    See https://aws-quickstart.github.io/option1.html.'
+    Default: us-east-1
+    Description: >-
+      AWS Region where the S3 bucket (QSS3BucketName) is hosted. Keep 
+      the default Region unless you are customizing the template. Changing the Region 
+      updates code references to point to a new location. When using your own bucket, 
+      specify the Region.
     Type: String
   QSS3KeyPrefix:
-    AllowedPattern: ^[0-9a-zA-Z-/]*$
-    ConstraintDescription: The Quick Start S3 key prefix can include numbers, lowercase letters,
-      uppercase letters, hyphens (-), and forward slashes (/). The prefix should
-      end with a forward slash (/).
+    AllowedPattern: ^([0-9a-zA-Z!-_\.\*'\(\)/]+/)*$
+    ConstraintDescription: >-
+      The S3 key prefix can include numbers, lowercase letters, uppercase letters, 
+      hyphens (-), underscores (_), periods (.), asterisks (*), single quotes ('),
+      open parenthesis ((), close parenthesis ()), and forward slashes (/). End the
+      prefix with a forward slash.
     Default: quickstart-nvidia-cloudxr/
-    Description: S3 key prefix that is used to simulate a folder for your copy of the 
-      Quick Start assets. Keep the default prefix unless you are customizing 
-      the template. Changing this prefix updates code references to point to 
-      a new Quick Start location. This prefix can include numbers, lowercase 
-      letters, uppercase letters, hyphens (-), and forward slashes (/). End with 
-      a forward slash. See https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html 
-      and https://aws-quickstart.github.io/option1.html.
+    Description: >-
+      S3 key prefix that is used to simulate a folder for your copy of the 
+      deployment assets. Keep the default prefix unless you are customizing 
+      the template. Changing the prefix updates code references to point to 
+      a new location.
     Type: String    
   KeyPairName:
-    Description: The name of an existing  public/private key pair, which allows you to securely connect to your instance after it launches.
+    Description: Name of existing public/private key pair. Allows you to securely connect to your instance after it launches.
     Type: AWS::EC2::KeyPair::KeyName        
   WorkloadInstanceType:
     AllowedValues:
@@ -176,36 +176,36 @@ Parameters:
     - g5.16xlarge
     ConstraintDescription: Must contain valid instance type.
     Default: g4dn.2xlarge
-    Description: The Amazon EC2 instance type for the Autodesk VRED instances.
+    Description: Amazon EC2 instance type for Autodesk VRED instances.
     Type: String
   VredInstanceTag:
     Type: String
     Default: VRED
-    Description: Environment tag value for VRED instances
+    Description: Environment tag value for VRED instances.
   CloudxrStorageVolumeSize:
     Type: Number
     Default: 200
     ConstraintDescription: Must be between 200 GB and 16,000 GB (16 TB).
     MinValue: 1
     MaxValue: 16000
-    Description: Size of CloudXR virtualized storage in GBs.
+    Description: Size of CloudXR virtualized storage (in GBs).
   InstanceCount:
-    Description: Number of EC2 instances for collaboration (Excludes Primary Node)
+    Description: Number of EC2 instances for collaboration (excludes primary node).
     Type: Number
     Default: 1
     MinValue: 1
     MaxValue: 10
-    ConstraintDescription: Must be a number between 1 and 10.
+    ConstraintDescription: Must be between 1 and 10.
   PublicRemoteCidr:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    ConstraintDescription: CIDR block parameter must be in format (x.x.x.x/x).
     Default: 10.0.0.0/16
-    Description: The CIDR IP range that is permitted to access the bastion hosts and Autodesk VRED. We recommend that you set this value to a trusted IP range. For example, you might want to grant only your corporate network access to the software. The CIDR block must be in the form x.x.x.x/x.
+    Description: CIDR IP range permitted to access bastion hosts and Autodesk VRED. We recommend you set this value to a trusted IP range. For example, grant only your corporate network access to the software. CIDR block must be in format (x.x.x.x/x).
     Type: String
   PrimaryNodeIP:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
     Default: 10.0.128.100
-    Description: IP for primary node of VRED Cluster. Primary private IP for the first cluster node located in Public Subnet A - Availability Zone 1.
+    Description: IP for primary node of VRED cluster. Primary private IP for first cluster node located in Public Subnet A—Availability Zone 1.
     Type: String
   LicenseServerIP:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
@@ -214,19 +214,19 @@ Parameters:
     Type: String
   MediaS3Bucket:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    ConstraintDescription: The bucket name can include numbers, lowercase
+    ConstraintDescription: Bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a 
       hyphen (-).
-    Description: The S3 bucket you have created to store Autodesk VRED and SteamVR installation media.
+    Description: S3 bucket created to store Autodesk VRED and SteamVR installation media.
     Type: String
   MediaS3Key:
-    ConstraintDescription: The Quick Start key prefix can include numbers, lowercase letters,
+    ConstraintDescription: Partner Solution key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), and forward slashes (/).
-    Description: S3 key prefix that is used to simulate a folder for your copy of the installation media. Autodesk VRED 3D (*.sfx.exe), SteamVR installation binaries (SteamVR.zip) and your scene file under this key prefix. Kindly follow pre-requisites for more details in the documentation. End with a forward slash.
+    Description: S3 key prefix used to simulate folder for your copy of installation media. Autodesk VRED 3D (*.sfx.exe), SteamVR installation binaries (SteamVR.zip), and your scene file under this key prefix. Follow prerequisites (see documentation for more details). End with a forward slash.
     Type: String
     Default: replace-me-quickstart-nvidia-cloudxr-media/
   SceneAddress:
-    Description: Autodesk VRED 3D Scene file. Address should be in format (MediaS3Key/Scene.vpb)
+    Description: Autodesk VRED 3D Scene file. Must be in format (MediaS3Key/Scene.vpb).
     Type: String
     Default: replace-me-quickstart-nvidia-cloudxr-media/my_scene.vpb
 
@@ -286,18 +286,18 @@ Resources:
 
 Outputs:
   VredInstanceID:
-    Description: EC2 Instance ID
+    Description: EC2 instance ID.
     Value: !GetAtt WorkloadStack.Outputs.VredInstanceID
   VredSecurityGroup:
-    Description: Security Group For VRED Instances
+    Description: Security Group for VRED instances.
     Value: !GetAtt WorkloadStack.Outputs.VredSecurityGroup
   VredPrimaryNodeURL:
-    Description: Url to Access VRED Primary Node(login as administrator)
+    Description: URL to access VRED primary node (login as administrator).
     Value: !GetAtt WorkloadStack.Outputs.VredPrimaryNodeURL
   VredAutoScalingGroup:
-    Description: Auto Scaling Group Details
+    Description: Auto Scaling group details.
     Value: !GetAtt WorkloadStack.Outputs.VredAutoScalingGroup
   NiceDCVdownload:
-    Description: NICE DCV client download url
+    Description: NICE DCV client download URL.
     Value: !GetAtt WorkloadStack.Outputs.NiceDCVdownload
 
