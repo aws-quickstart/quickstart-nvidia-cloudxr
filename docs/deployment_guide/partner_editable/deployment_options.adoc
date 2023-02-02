@@ -2,7 +2,7 @@
 
 This Partner Solution provides the following deployment options:
 
-* http://qs_launch_permalink[Deploy {partner-product-name} into a new VPC^]. This option builds a new AWS environment that consists of the VPC, subnets, security groups, and other infrastructure components. It then deploys {partner-product-name} into this new VPC.
-* http://qs_launch_permalink[Deploy {partner-product-name} into an existing VPC^]. This option provisions {partner-product-name} in your existing AWS infrastructure.
+* https://fwd.aws/mpyyk?[Deploy {partner-product-name} into a new VPC^]. This option builds a new AWS environment that consists of the VPC, subnets, security groups, and other infrastructure components. It then deploys {partner-product-name} into this new VPC.
+* https://fwd.aws/9N93P?[Deploy {partner-product-name} into an existing VPC^]. This option provisions {partner-product-name} in your existing AWS infrastructure.
 
 This Partner Solution provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks, instance types, and {partner-product-name} settings.
