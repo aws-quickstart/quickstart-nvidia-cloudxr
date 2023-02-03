@@ -45,7 +45,7 @@ Install the Steam client to store SteamVR binary.
 
 Create and configure a network interface to manage your license.
 
-. Create an elastic network interface (ENI) with a fixed MAC address. Refer to https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html[Elastic network interfaces^]. 
+. Create an elastic network interface (ENI) with a fixed MAC address. For more information, refer to https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html[Elastic network interfaces^]. 
 . Create an Amazon EC2 instance from a preconfigured Amazon Machine Image (AMI) or a new Windows 10 or 11 deployment.
 . Download and install the https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software[Autodesk Network License Manager (NLM)^].
 .. Create a license based on the NLM server name and the MAC address of the ENI.
