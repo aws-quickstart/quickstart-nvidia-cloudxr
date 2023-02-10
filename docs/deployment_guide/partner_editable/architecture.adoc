@@ -7,7 +7,7 @@ AWS Cloud.
 
 [#architecture1]
 .Partner Solution architecture for {partner-product-name} on AWS
-image::../docs/deployment_guide/images/architecture_diagram.png[Architecture]
+image::../docs/deployment_guide/images/nvidia-cloudxr-architecture-diagram.png[Architecture]
 
 As shown in <<architecture1>>, this Partner Solution sets up the following:
 
@@ -15,10 +15,9 @@ As shown in <<architecture1>>, this Partner Solution sets up the following:
 * A virtual private cloud (VPC) configured with public subnets, according to AWS
 best practices, to provide you with your own virtual network on AWS.*
 * In the public subnets:
-** Managed Network Address Translation (NAT) gateways to allow outbound internet access for resources.
-** Windows EC2 instance manages the environment to ensure primary and collaborators see the same thing in real time:
-*** The primary node acts as an orchestrator for the collaborator nodes for simultaneous work to be completed in a virtual reality environment.
-** An Auto Scaling group of G4dn or G5 Windows EC2 instances running NVIDIA CloudXR (not shown), Steam VR (not shown), and NICE DCV (not shown) for remote access.
+** Managed NAT gateways to allow outbound internet access for resources in the subnets.
+** An Amazon Elastic Compute Cloud (EC2) Windows instance for the Autodesk VRED primary node.
+** NVIDIA CloudXR, Steam VR, and NICE DCV installed to Autodesk VRED collaborator nodes in an Auto Scaling group. You can choose G4dn or G5 EC2 instance types for the collaborator nodes during deployment.
 // Add bullet points for any additional components that are included in the deployment. Ensure that the additional components are shown in the architecture diagram. End each bullet with a period.
 
 [.small]#* The template that deploys this Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
