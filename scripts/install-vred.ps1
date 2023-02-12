@@ -81,6 +81,18 @@ if (![string]::IsNullOrWhiteSpace($AccessKey) -or ![string]::IsNullOrWhiteSpace(
   Copy-S3Object -BucketName $S3Bucket -KeyPrefix $InstallerPrefix -LocalFolder $tempPath
 }
 
+####################################################################################################
+# Install DirectX End-User Runtime Web Installer
+#
+# DirectX End-User Runtime Web Installer [dxwebsetup.exe] must be added to the S3 bucket folder of media and binaries.
+#
+# It can be downloaded from:
+# https://www.microsoft.com/en-us/download/details.aspx?id=35
+####################################################################################################
+
+# Extract DirectX files
+$DxExe = Join-Path $tempPath "dxwebsetup.exe"
+Start-Process -FilePath $DxExe -ArgumentList "/Q" -Wait
 
 ####################################################################################################
 # Install VRED Core and set the license server
