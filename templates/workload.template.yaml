@@ -217,8 +217,7 @@ Parameters:
   ImageId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Description: CloudXR is NVIDIA's streaming SDK.
-    Default: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.1-vgpu-13.1
-#    Default: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.2-vgpu-14.1
+    Default: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.2-vgpu-14.1
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
