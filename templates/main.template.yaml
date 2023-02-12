@@ -65,7 +65,7 @@ Metadata:
       QSS3BucketName:
         default: Partner Solution S3 bucket name
       QSS3BucketRegion:
-        default: Parnter Solution S3 bucket Region
+        default: Partner Solution S3 bucket Region
       QSS3KeyPrefix:
         default: Partner Solution S3 key prefix
       WorkloadInstanceType:
