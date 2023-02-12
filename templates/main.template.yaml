@@ -175,7 +175,7 @@ Parameters:
     - g5.12xlarge
     - g5.16xlarge
     ConstraintDescription: Must contain valid instance type.
-    Default: g4dn.2xlarge
+    Default: g5.2xlarge
     Description: Amazon EC2 instance type for Autodesk VRED instances.
     Type: String
   VredInstanceTag:
