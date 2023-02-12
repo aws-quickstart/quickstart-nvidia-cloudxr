@@ -272,7 +272,6 @@ Resources:
         QSS3BucketRegion: !Ref QSS3BucketRegion
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         WorkloadInstanceType: !Ref WorkloadInstanceType
-#        CloudxrAMI: !Ref CloudxrAMI
         CloudxrStorageVolumeSize: !Ref CloudxrStorageVolumeSize
         KeyPairName: !Ref KeyPairName
         InstanceCount: !Ref InstanceCount
