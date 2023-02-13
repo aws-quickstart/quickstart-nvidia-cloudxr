@@ -5,7 +5,7 @@
 :partner-company-name: Autodesk
 :doc-month: February
 :doc-year: 2023
-:partner-contributors: Sahil Saini, Autodesk Solutions Architect team 
+:partner-contributors: Sahil Saini, Autodesk Solutions Architect team and Norman Geiersbach, Autodesk Sr. Principal Engineer
 // :other-contributors: Akua Mansa, Trek10
 :aws-contributors: Marcos Hernandez Alvarez, AWS Solutions Architect team
 :aws-ia-contributors: Dave May, AWS Integration & Automation team
