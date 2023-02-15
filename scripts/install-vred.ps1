@@ -81,6 +81,18 @@ if (![string]::IsNullOrWhiteSpace($AccessKey) -or ![string]::IsNullOrWhiteSpace(
   Copy-S3Object -BucketName $S3Bucket -KeyPrefix $InstallerPrefix -LocalFolder $tempPath
 }
 
+####################################################################################################
+# Install DirectX End-User Runtime Web Installer
+#
+# DirectX End-User Runtime Web Installer [dxwebsetup.exe] must be added to the S3 bucket folder of media and binaries.
+#
+# It can be downloaded from:
+# https://www.microsoft.com/en-us/download/details.aspx?id=35
+####################################################################################################
+
+$DxExe = Join-Path $tempPath "dxwebsetup.exe"
+Write-Output "DirectX End-User Runtime Web Installer '$DxExe'." | Timestamp
+Start-Process -FilePath $DxExe -ArgumentList "/Q" -Wait
 
 ####################################################################################################
 # Install VRED Core and set the license server
@@ -175,8 +187,8 @@ $steamZipPath = Join-Path $tempPath "SteamVR.zip"
 Expand-Archive -LiteralPath $steamZipPath -DestinationPath $steamInstPath -Force
 
 # Install CloudXR
-$cxrInstPath = "$env:USERPROFILE\Desktop\3.1-CloudXR-SDK(11-12-2021)"
-if ($Env:CloudXR_SDK -ne $null) {
+$cxrInstPath = "$env:USERPROFILE\Desktop\CloudXR-SDK"
+if ($null -ne $Env:CloudXR_SDK) {
   $cxrInstPath = $Env:CloudXR_SDK
 }
 Write-Output "Install CloudXR from $cxrInstPath" | Timestamp
@@ -185,6 +197,7 @@ Start-Process -FilePath (Join-Path $cxrInstPath "Installer\CloudXR-Setup.exe") -
 # Add firewall rule for SteamVR
 $steamVRServerPath = Join-Path $steamInstPath "bin\win64\vrserver.exe"
 New-NetFirewallRule -DisplayName "CloudXR SteamVR Server" -Direction Inbound -Program $steamVRServerPath -Action Allow | Out-Null
+Enable-NetFirewallRule -DisplayName "CloudXR SteamVR Server" | Out-Null
 
 
 ####################################################################################################

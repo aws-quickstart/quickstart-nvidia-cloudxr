@@ -217,8 +217,7 @@ Parameters:
   ImageId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Description: CloudXR is NVIDIA's streaming SDK.
-    Default: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.1-vgpu-13.1
-#    Default: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.2-vgpu-14.1
+    Default: /aws/service/marketplace/prod-7msqr5zacq4i6/cloudxr-3.2-vgpu-14.1
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
@@ -283,12 +282,7 @@ Resources:
           SourceSecurityGroupId: !Ref WorkstationSG
 
   WorkstationAccessRole:
-    Type: "AWS::IAM::Role"
-    Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-            - EIAMPolicyWildcardResource
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -316,16 +310,7 @@ Resources:
                   - !Sub ['arn:${AWS::Partition}:s3:::${S3Bucket}', S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]]
                   - !Sub "arn:${AWS::Partition}:s3:::${MediaS3Bucket}/*"
                   - !Sub "arn:${AWS::Partition}:s3:::${MediaS3Bucket}'"
-        - PolicyName: WorkstationSecretsAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - secretsmanager:DescribeSecret
-                Resource: "*"
-        - PolicyName: VRED-workstation-secret-access
+        - PolicyName: NiceDCVLicenseS3BucketAccess
           PolicyDocument:
             Version: '2012-10-17'
             Statement:

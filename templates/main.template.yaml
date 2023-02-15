@@ -65,7 +65,7 @@ Metadata:
       QSS3BucketName:
         default: Partner Solution S3 bucket name
       QSS3BucketRegion:
-        default: Parnter Solution S3 bucket Region
+        default: Partner Solution S3 bucket Region
       QSS3KeyPrefix:
         default: Partner Solution S3 key prefix
       WorkloadInstanceType:
@@ -175,7 +175,7 @@ Parameters:
     - g5.12xlarge
     - g5.16xlarge
     ConstraintDescription: Must contain valid instance type.
-    Default: g4dn.2xlarge
+    Default: g5.2xlarge
     Description: Amazon EC2 instance type for Autodesk VRED instances.
     Type: String
   VredInstanceTag:
@@ -272,7 +272,6 @@ Resources:
         QSS3BucketRegion: !Ref QSS3BucketRegion
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         WorkloadInstanceType: !Ref WorkloadInstanceType
-#        CloudxrAMI: !Ref CloudxrAMI
         CloudxrStorageVolumeSize: !Ref CloudxrStorageVolumeSize
         KeyPairName: !Ref KeyPairName
         InstanceCount: !Ref InstanceCount
