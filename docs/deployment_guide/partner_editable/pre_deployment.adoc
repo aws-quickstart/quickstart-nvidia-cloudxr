@@ -23,9 +23,9 @@ Create and configure an Amazon S3 bucket for storage.
 
 //*Instructions to create S3 bucket and prefix for media repository
 
-. https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[Create an Amazon S3 bucket^] to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region that you deploy the Partner Solution.
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html[Create an Amazon S3 bucket^] to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region into which you'll deploy the Partner Solution.
 
-. (Optional) Create an S3 key prefix to organize the binaries stored in the Amazon S3 bucket.
+(Optional) Create an S3 key prefix to organize the binaries stored in the Amazon S3 bucket.
 
 === Install SteamVR binary
 
