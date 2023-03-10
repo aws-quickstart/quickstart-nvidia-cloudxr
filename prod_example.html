@@ -5,9 +5,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
-<meta name="description" content="VRED and CloudXR Deployment Guide on AWS">
-<meta name="keywords" content="Quick Start, AWS, VRED and CloudXR">
-<title>VRED and CloudXR on the AWS Cloud</title>
+<meta name="description" content="Autodesk VRED and NVIDIA CloudXR Deployment Guide on AWS">
+<meta name="keywords" content="Partner Solution, AWS, Autodesk VRED and NVIDIA CloudXR">
+<title>Autodesk VRED and NVIDIA CloudXR on AWS</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
 /* Uncomment @import statement to use as custom stylesheet */
@@ -861,10 +861,10 @@ p.footer-text a{color:#d7d8d8}
 <li><a href="#_predeployment_steps">Predeployment steps</a>
 <ul class="sectlevel2">
 <li><a href="#_subscribe_to_cloudxr_marketplace_offering">Subscribe to CloudXR Marketplace offering</a></li>
-<li><a href="#_create_s3_bucket_to_store_binaries">Create S3 Bucket to store binaries</a></li>
-<li><a href="#_obtain_steamvr_binary">Obtain SteamVR binary</a></li>
-<li><a href="#_setup_ec2_for_network_license_management">Setup EC2 for Network License management</a></li>
-<li><a href="#_obtain_autodesk_vred_core_binary">Obtain Autodesk VRED Core binary</a></li>
+<li><a href="#_create_amazon_simple_storage_service_amazon_s3_bucket_to_store_binaries">Create Amazon Simple Storage Service (Amazon S3) bucket to store binaries</a></li>
+<li><a href="#_install_steamvr_binary">Install SteamVR binary</a></li>
+<li><a href="#_set_up_amazon_elastic_compute_cloud_amazon_ec2_for_network_license_management">Set up Amazon Elastic Compute Cloud (Amazon EC2) for Network License Management</a></li>
+<li><a href="#_install_autodesk_vred_core_binary">Install Autodesk VRED Core binary</a></li>
 </ul>
 </li>
 <li><a href="#_deployment_steps">Deployment steps</a></li>
@@ -874,6 +874,7 @@ p.footer-text a{color:#d7d8d8}
 </ul>
 </li>
 <li><a href="#_troubleshooting">Troubleshooting</a></li>
+<li><a href="#_customer_responsibility">Customer responsibility</a></li>
 <li><a href="#_feedback">Feedback</a></li>
 <li><a href="#_notices">Notices</a></li>
 </ul>
@@ -882,16 +883,17 @@ p.footer-text a{color:#d7d8d8}
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
-<h2 id="_vred_and_cloudxr_on_the_aws_cloud" class="discrete text-center">VRED and CloudXR on the AWS Cloud</h2>
-<h2 id="_quick_start_deployment_guide" class="discrete text-left text-center">Quick Start Deployment Guide</h2>
+<h2 id="_autodesk_vred_and_nvidia_cloudxr_on_aws" class="discrete text-center">Autodesk VRED and NVIDIA CloudXR on AWS</h2>
+<h2 id="_partner_solution_deployment_guide" class="discrete text-left text-center">Partner Solution Deployment Guide</h2>
 <div class="imageblock text-center">
 <div class="content">
 <img src="https://aws-quickstart.s3.amazonaws.com/docs/deployment-guide/aws-quickstart-deployment-graphic.png" alt="QS" width="80" height="80">
 </div>
 </div>
 <div class="paragraph text-center">
-<p><strong>June 2022</strong><br>
-<em>Sahil Saini, Autodesk Solutions Architect</em><br>
+<p><strong>February 2023</strong><br>
+<em>Sahil Saini, Autodesk Solutions Architect team and Norman Geiersbach, Autodesk Sr. Principal Engineer</em><br>
+<em>Marcos Hernandez Alvarez, AWS Solutions Architect team</em><br>
 <em>Dave May, AWS Integration &amp; Automation team</em><br></p>
 </div>
 <div class="imageblock text-left image-container">
@@ -906,13 +908,13 @@ p.footer-text a{color:#d7d8d8}
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Refer to the <a href="https://github.com/aws-quickstart/quickstart-nvidia-cloudxr" target="_blank" rel="noopener">GitHub repository</a> to view source files, report bugs, submit feature ideas, and post feedback about this Quick Start. To comment on the documentation, refer to <a href="#_feedback">Feedback</a>.
+Refer to the <a href="https://github.com/aws-quickstart/quickstart-nvidia-cloudxr" target="_blank" rel="noopener">GitHub repository</a> to view source files, report bugs, submit feature ideas, and post feedback about this Partner Solution. To comment on the documentation, refer to <a href="#_feedback">Feedback</a>.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph text-left">
-<p>This Quick Start was created by Autodesk in collaboration with Amazon Web Services (AWS). <a href="http://aws.amazon.com/quickstart/" target="_blank" rel="noopener">Quick Starts</a> are automated reference deployments that help people deploy popular technologies on AWS according to AWS best practices. If you&#8217;re unfamiliar with AWS Quick Starts, refer to the <a href="https://fwd.aws/rA69w?" target="_blank" rel="noopener">AWS Quick Start General Information Guide</a>.</p>
+<p>This Partner Solution was created by Autodesk in collaboration with Amazon Web Services (AWS). <a href="https://aws.amazon.com/solutions/partners/" target="_blank" rel="noopener">Partner Solutions</a> are automated reference deployments that help people deploy popular technologies on AWS according to AWS best practices. If you&#8217;re unfamiliar with AWS Partner Solutions, refer to the <a href="https://fwd.aws/rA69w?" target="_blank" rel="noopener">AWS Partner Solution General Information Guide</a>.</p>
 </div>
 </div>
 </div>
@@ -920,13 +922,11 @@ Refer to the <a href="https://github.com/aws-quickstart/quickstart-nvidia-cloudx
 <h2 id="_overview">Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This Quick Start deploys VRED and CloudXR on the AWS Cloud. If you are unfamiliar with AWS Quick Starts, refer to the <a href="https://fwd.aws/rA69w?" target="_blank" rel="noopener">AWS Quick Start General Information Guide</a>.</p>
+<p>This guide covers the information you need to deploy Autodesk VRED and NVIDIA CloudXR on the AWS Cloud. If you are unfamiliar with AWS Partner Solutions, refer to the <a href="https://fwd.aws/rA69w?" target="_blank" rel="noopener">AWS Partner Solution General Information Guide</a>.</p>
 </div>
 <div class="paragraph">
-<p>Autodesk VRED 3D visualization software <strong>helps designers and engineers create product presentations, design reviews, and virtual prototypes</strong> using interactive GPU ray tracing and both analytic and cloud-rendering modes.</p>
-</div>
-<div class="paragraph">
-<p>This Quick Start is for IT infrastructure architects, administrators, and DevOps professionals who are planning to implement or extend their Autodesk VRED workloads on the AWS Cloud.</p>
+<p>For additional information about VRED, refer to
+<a href="https://www.autodesk.com/products/vred/features/vred" target="_blank" rel="noopener">VRED</a>. For additional information about CloudXR, refer to <a href="https://developer.nvidia.com/nvidia-cloudxr-sdk#:~:text=CloudXR%20is%20NVIDIA&#8217;s%20solution%20for,%2C%20data%20center%2C%20or%20edge">NVIDIA CloudXR SDK</a>.</p>
 </div>
 </div>
 </div>
@@ -934,7 +934,7 @@ Refer to the <a href="https://github.com/aws-quickstart/quickstart-nvidia-cloudx
 <h2 id="_costs_and_licenses">Costs and licenses</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>There is no cost to use this Quick Start, but you will be billed for any AWS services or resources that this Quick Start deploys. For more information, refer to the <a href="https://fwd.aws/rA69w?" target="_blank" rel="noopener">AWS Quick Start General Information Guide</a>.</p>
+<p>There is no cost to use this Partner Solution, but you will be billed for any AWS services or resources that this Partner Solution deploys. For more information, refer to the <a href="https://fwd.aws/rA69w?" target="_blank" rel="noopener">AWS Partner Solution General Information Guide</a>.</p>
 </div>
 </div>
 </div>
@@ -942,17 +942,15 @@ Refer to the <a href="https://github.com/aws-quickstart/quickstart-nvidia-cloudx
 <h2 id="_architecture">Architecture</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Deploying this Quick Start with default parameters builds the following VRED environment in the
+<p>Deploying this Partner Solution with default parameters builds the following VRED environment in the
 AWS Cloud.</p>
 </div>
-<div id="architecture1" class="imageblock">
-<div class="content">
-<img src="docs/deployment_guide/images/architecture_diagram.png" alt="Architecture">
-</div>
-<div class="title">Figure 1. Quick Start architecture for VRED on AWS</div>
+<div id="architecture1" class="paragraph">
+<p>Partner Solution architecture for Autodesk VRED and NVIDIA CloudXR on AWS
+image::../docs/deployment_guide/images/nvidia-cloudxr-architecture-diagram.png[Architecture]</p>
 </div>
 <div class="paragraph">
-<p>As shown in <a href="#architecture1">Figure 1</a>, this Quick Start sets up the following:</p>
+<p>As shown in <a href="#architecture1">[architecture1]</a>, this Partner Solution sets up the following:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -968,7 +966,13 @@ best practices, to provide you with your own virtual network on AWS.*</p>
 <div class="ulist">
 <ul>
 <li>
-<p>An auto scaling group of g4dn or g5 Windows EC2 instances running NVIDIA CloudXR, Steam VR, and NICE DCV for remote access.</p>
+<p>Managed NAT gateways to allow outbound internet access for resources in the subnets.</p>
+</li>
+<li>
+<p>An Amazon Elastic Compute Cloud (EC2) Windows instance for the Autodesk VRED primary node.</p>
+</li>
+<li>
+<p>NVIDIA CloudXR, Steam VR, and NICE DCV installed to Autodesk VRED collaborator nodes in an Auto Scaling group. You can choose G4dn or G5 EC2 instance types for the collaborator nodes during deployment.</p>
 </li>
 </ul>
 </div>
@@ -976,7 +980,7 @@ best practices, to provide you with your own virtual network on AWS.*</p>
 </ul>
 </div>
 <div class="paragraph">
-<p><span class="small">* The template that deploys this Quick Start into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.</span></p>
+<p><span class="small">* The template that deploys this Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.</span></p>
 </div>
 </div>
 </div>
@@ -984,20 +988,20 @@ best practices, to provide you with your own virtual network on AWS.*</p>
 <h2 id="_deployment_options">Deployment options</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This Quick Start provides the following deployment options:</p>
+<p>This Partner Solution provides the following deployment options:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="http://qs_launch_permalink" target="_blank" rel="noopener">Deploy VRED into a new VPC</a>. This option builds a new AWS environment that consists of the VPC, subnets, security groups, and other infrastructure components. It then deploys VRED into this new VPC.</p>
+<p><a href="https://fwd.aws/mpyyk?" target="_blank" rel="noopener">Deploy Autodesk VRED and NVIDIA CloudXR into a new VPC</a>. This option builds a new AWS environment that consists of the VPC, subnets, security groups, and other infrastructure components. It then deploys Autodesk VRED and NVIDIA CloudXR into this new VPC.</p>
 </li>
 <li>
-<p><a href="http://qs_launch_permalink" target="_blank" rel="noopener">Deploy VRED into an existing VPC</a>. This option provisions VRED in your existing AWS infrastructure.</p>
+<p><a href="https://fwd.aws/9N93P?" target="_blank" rel="noopener">Deploy Autodesk VRED and NVIDIA CloudXR into an existing VPC</a>. This option provisions Autodesk VRED and NVIDIA CloudXR in your existing AWS infrastructure.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>This Quick Start provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks, instance types, and VRED settings.</p>
+<p>This Partner Solution provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks, instance types, and Autodesk VRED and NVIDIA CloudXR settings.</p>
 </div>
 </div>
 </div>
@@ -1007,123 +1011,179 @@ best practices, to provide you with your own virtual network on AWS.*</p>
 <div class="sect2">
 <h3 id="_subscribe_to_cloudxr_marketplace_offering">Subscribe to CloudXR Marketplace offering</h3>
 <div class="paragraph">
-<p>Navigate to <a href="https://aws.amazon.com/marketplace">AWS Marketplace</a> and search for CloudXR to find the latest listing. Review the details and make a note of the instance size, AWS Pricing, usage, and other details. Select <strong>Continue to Subscribe</strong>.</p>
+<p>Use AWS Marketplace to find CloudXR.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open <a href="https://aws.amazon.com/marketplace" target="_blank" rel="noopener">AWS Marketplace</a> and search for CloudXR to find the latest listing.</p>
+</li>
+<li>
+<p>Review the details and make note of the instance size, AWS pricing, usage, and other details.</p>
+</li>
+<li>
+<p>Choose <strong>Continue to Subscribe</strong>.</p>
+</li>
+<li>
+<p>Accept the Terms and Conditions to activate the subscription (this may take a few minutes). When activation is complete, an effective date displays.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_amazon_simple_storage_service_amazon_s3_bucket_to_store_binaries">Create Amazon Simple Storage Service (Amazon S3) bucket to store binaries</h3>
+<div class="paragraph">
+<p>Create and configure an Amazon S3 bucket for storage.</p>
 </div>
 <div class="paragraph">
-<p>Accept the Terms and Conditions to activate the subscription (this may take a few minutes). When finished, an effective date will be displayed.</p>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html" target="_blank" rel="noopener">Create an Amazon S3 bucket</a> to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region into which you&#8217;ll deploy the Partner Solution.</p>
+</div>
+<div class="paragraph">
+<p>(Optional) Create an S3 key prefix to organize the binaries stored in the Amazon S3 bucket.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_create_s3_bucket_to_store_binaries">Create S3 Bucket to store binaries</h3>
-<div class="ulist">
-<ul>
+<h3 id="_install_steamvr_binary">Install SteamVR binary</h3>
+<div class="paragraph">
+<p>Install the Steam client to store SteamVR binary.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-s3.html">Create an S3 bucket</a> to store the SteamVR binary, VRED Core binary, and Scene file for rendering, preferably in the same region into which you will deploy the Quick Start.
-rm</p>
+<p>Open <a href="https://store.steampowered.com/about/" target="_blank" rel="noopener">Steam</a> to install Steam on a PC with full internet access.</p>
 </li>
 <li>
-<p>Optionally, create an S3 key prefix to organize the binaries stored in the S3 bucket.</p>
+<p>In the Steam client, open the <strong>Library</strong> section.</p>
 </li>
-</ul>
+<li>
+<p>In the <strong>Tools</strong> section, search for the <strong>SteamVR</strong> entry, and then install it.</p>
+</li>
+<li>
+<p>Right-click the <strong>SteamVR</strong> entry, and in the the pop-up menu, choose <strong>Properties</strong>.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>A new window with multiple tabs opens.</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p>Choose the <strong>LOCAL FILES</strong> tab, and then select <strong>BROWSE LOCAL FILES</strong>.</p>
+<div class="olist upperalpha">
+<ol class="upperalpha" type="A">
+<li>
+<p>The directory containing the SteamVR Runtime opens.</p>
+<div class="olist upperroman">
+<ol class="upperroman" type="I">
+<li>
+<p>Compress this entire directory into a .zip file named <strong>SteamVR.zip</strong>. This binary is used to install Steam VR.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Store the SteamVR.zip binary in the previously created Amazon S3 bucket.</p>
+</li>
+</ol>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_obtain_steamvr_binary">Obtain SteamVR binary</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Install and open the <a href="https://store.steampowered.com/about/">Steam Client</a> on a PC with full internet access.</p>
-</li>
-<li>
-<p>In the Steam Client, open the Library section and find the section labeled <strong>Tools</strong>.</p>
-</li>
-<li>
-<p>Search for the <strong>SteamVR</strong> entry and install it.</p>
-</li>
-<li>
-<p>Right-click on the <strong>SteamVR</strong> entry and in the resulting popup menu click <strong>Properties</strong>.</p>
-</li>
-<li>
-<p>A new window with multiple tabs will open. Select the <strong>LOCAL FILES</strong> tab and click on <strong>BROWSE LOCAL FILES</strong>.</p>
-</li>
-<li>
-<p>The directory containing the SteamVR Runtime will open. Compress this entire directory into a ZIP file named <strong>SteamVR.zip</strong>. This binary will be used to install Steam VR.</p>
-</li>
-<li>
-<p>Store the SteamVR.zip binary in the previously created S3 bucket.</p>
-</li>
-</ul>
+<h3 id="_set_up_amazon_elastic_compute_cloud_amazon_ec2_for_network_license_management">Set up Amazon Elastic Compute Cloud (Amazon EC2) for Network License Management</h3>
+<div class="paragraph">
+<p>Create and configure a network interface to manage your license.</p>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_setup_ec2_for_network_license_management">Setup EC2 for Network License management</h3>
-<div class="ulist">
-<ul>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p>Create an elastic network interface (ENI) with a fixed MAC address.</p>
+<p>Create an elastic network interface (ENI) with a fixed MAC address. For more information, refer to <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html" target="_blank" rel="noopener">Elastic network interfaces</a>.</p>
 </li>
 <li>
-<p>Create an EC2 instance from a preconfigured AMI or a new Windows 10 or 11 deployment.</p>
+<p>Create an Amazon EC2 instance from a preconfigured Amazon Machine Image (AMI) or a new Windows 10 or 11 deployment.</p>
 </li>
 <li>
-<p>Download and install the <a href="https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software">Autodesk Network License Manager</a>.</p>
-</li>
+<p>Download and install the <a href="https://www.autodesk.com/support/download-install/admins/network-licenses/install-licensing-software" target="_blank" rel="noopener">Autodesk Network License Manager (NLM)</a>.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
 <li>
 <p>Create a license based on the NLM server name and the MAC address of the ENI.</p>
-</li>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
 <li>
-<p>Setup a license file for NLM via LMTools.</p>
+<p>Set up a license file for NLM using LMTools.</p>
 </li>
-</ul>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_obtain_autodesk_vred_core_binary">Obtain Autodesk VRED Core binary</h3>
-<div class="ulist">
-<ul>
+<h3 id="_install_autodesk_vred_core_binary">Install Autodesk VRED Core binary</h3>
+<div class="paragraph">
+<p>Install and download Autodesk VRED Core binary, as shown in <a href="#predeployment1">Figure 1</a> and <a href="#predeployment2">Figure 2</a>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p>From a web browser, open <a href="https://manage.autodesk.com" class="bare">https://manage.autodesk.com</a>.</p>
+<p>Open <a href="https://manage.autodesk.com" target="_blank" rel="noopener">Autodesk Sign in</a>. Disable browser pop-up blockers before downloading.</p>
 </li>
 <li>
-<p>Sign in with your Autodesk credentials.</p>
+<p>Sign in with your Autodesk credentials or create an account.</p>
 </li>
 <li>
-<p>Click on <strong>All Products and Services</strong> on the left.</p>
+<p>On the left, choose <strong>All Products and Services</strong>.</p>
 </li>
 <li>
-<p>Choose VRED Core and click <strong>View downloads</strong>.</p>
-</li>
+<p>Choose <strong>VRED Core</strong>, and then choose <strong>View downloads</strong>.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
 <li>
-<p>Click on <strong>View all</strong> below the <strong>Install now</strong> button.</p>
-</li>
+<p>Below <strong>Install now</strong>, choose <strong>View all</strong>.</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
 <li>
 <p>Choose <strong>Browser Download</strong>.</p>
+<div class="olist upperalpha">
+<ol class="upperalpha" type="A">
+<li>
+<p>From the pop-up window, choose <strong>Start download</strong>.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
 </li>
 <li>
-<p>Select <strong>Start download</strong> from the resulting popup.</p>
+<p>Copy all installer *.sfx.exe files to your AWS media Amazon S3 bucket.</p>
 </li>
-<li>
-<p>Disable browser pop-up blockers before downloading.</p>
-</li>
-<li>
-<p>Copy all installer *.sfx.exe files to your AWS media S3 bucket.</p>
-</li>
-</ul>
+</ol>
 </div>
 <div id="predeployment1" class="imageblock">
 <div class="content">
 <img src="docs/deployment_guide/images/image1.png" alt="predeployment1">
 </div>
+<div class="title">Figure 1. All Products and Services</div>
 </div>
 <div id="predeployment2" class="imageblock">
 <div class="content">
 <img src="docs/deployment_guide/images/image2.png" alt="predeployment2">
 </div>
-</div>
-<div id="predeployment3" class="imageblock">
-<div class="content">
-<img src="docs/deployment_guide/images/image3.png" alt="predeployment3">
-</div>
+<div class="title">Figure 2. VRED Core download page</div>
 </div>
 </div>
 </div>
@@ -1134,7 +1194,7 @@ rm</p>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Sign in to your AWS account, and launch this Quick Start, as described under <a href="#_deployment_options">Deployment options</a>. The AWS CloudFormation console opens with a prepopulated template. Deployment takes about 30 minutes to complete.</p>
+<p>Sign in to your AWS account, and launch this Partner Solution, as described under <a href="#_deployment_options">Deployment options</a>. The AWS CloudFormation console opens with a prepopulated template.</p>
 </li>
 <li>
 <p>Choose the correct AWS Region, and then choose <strong>Next</strong>.</p>
@@ -1151,7 +1211,7 @@ rm</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Unless you are customizing the Quick Start templates for your own projects, don&#8217;t change the default settings for the following Amazon Simple Storage Service (Amazon S3) parameters: <strong>Quick Start S3 bucket name</strong>, <strong>Quick Start S3 bucket Region</strong>, and <strong>Quick Start S3 key prefix</strong>. Changing these settings automatically updates code references to point to a new Quick Start location. For more information, refer to the <a href="https://fwd.aws/NwqYA?" target="_blank" rel="noopener">AWS Quick Start Contributor&#8217;s Guide</a>.
+Unless you&#8217;re customizing the Partner Solution templates or are instructed otherwise in this guide&#8217;s <strong>Predeployment</strong> section, don&#8217;t change the default settings for the following parameters: <code>QSS3BucketName</code>, <code>QSS3BucketRegion</code>, and <code>QSS3KeyPrefix</code>. Changing the values of these parameters will modify code references that point to the Amazon Simple Storage Service (Amazon S3) bucket name and key prefix. For more information, refer to the <a href="https://fwd.aws/NwqYA?" target="_blank" rel="noopener">AWS Partner Solutions Contributor&#8217;s Guide</a>.
 </td>
 </tr>
 </table>
@@ -1161,13 +1221,13 @@ Unless you are customizing the Quick Start templates for your own projects, don&
 <p>On the <strong>Configure stack options</strong> page, you can <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html" target="_blank" rel="noopener">specify tags</a> (key-value pairs) for resources in your stack and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-add-tags.html" target="_blank" rel="noopener">set advanced options</a>. When you finish, choose <strong>Next</strong>.</p>
 </li>
 <li>
-<p>On the <strong>Review</strong> page, review and confirm the template settings. Under <strong>Capabilities</strong>, select all of the check boxes to acknowledge that the template creates IAM resources that might require the ability to automatically expand macros.</p>
+<p>On the <strong>Review</strong> page, review and confirm the template settings. Under <strong>Capabilities</strong>, select all of the check boxes to acknowledge that the template creates AWS Identity and Access Management (IAM)  resources that might require the ability to automatically expand macros.</p>
 </li>
 <li>
-<p>Choose <strong>Create stack</strong> to deploy the stack.</p>
+<p>Choose <strong>Create stack</strong>. The stack takes about 30 minutes to deploy.</p>
 </li>
 <li>
-<p>Monitor the stack&#8217;s status, and when the status is <strong>CREATE_COMPLETE</strong>, the VRED and CloudXR deployment is ready.</p>
+<p>Monitor the stack&#8217;s status, and when the status is <strong>CREATE_COMPLETE</strong>, the Autodesk VRED and NVIDIA CloudXR deployment is ready.</p>
 </li>
 <li>
 <p>To view the created resources, choose the <strong>Outputs</strong> tab.</p>
@@ -1182,10 +1242,10 @@ Unless you are customizing the Quick Start templates for your own projects, don&
 <div class="sect2">
 <h3 id="_test_the_deployment">Test the deployment</h3>
 <div class="paragraph">
-<p>When the AWS CloudFormation template has successfully created the stack, all server nodes will be running with the Autodesk VRED application installed in your AWS account. To access the application, in your preferred browser, go to the VRED URL listed in the <strong>Outputs</strong> tab.</p>
+<p>When the AWS CloudFormation template has successfully created the stack, all server nodes will be running with the Autodesk VRED application installed on your AWS account. To access the application, from your preferred browser, open the VRED URL listed in the <strong>Outputs</strong> tab.</p>
 </div>
 <div class="paragraph">
-<p>The Quick Start will create VRED instances and associated security group to enable connection from the Cloudxr client or via the NICE DCV web url. The Quick Start output will display the primary node URL. The secondary server IP details can be collected from the auto scaling group instance details.</p>
+<p>The Partner Solution creates VRED instances and an associated security group to enable connection from the CloudXR client or from the NICE DCV web URL. The Partner Solution output displays the primary node URL. Collect the secondary server IP details from the Auto Scaling group instance details.</p>
 </div>
 </div>
 </div>
@@ -1194,7 +1254,15 @@ Unless you are customizing the Quick Start templates for your own projects, don&
 <h2 id="_troubleshooting">Troubleshooting</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>For troubleshooting common Quick Start issues, refer to the <a href="https://fwd.aws/rA69w?" target="_blank" rel="noopener">AWS Quick Start General Information Guide</a> and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/troubleshooting.html" target="_blank" rel="noopener">Troubleshooting CloudFormation</a>.</p>
+<p>For troubleshooting common Partner Solution issues, refer to the <a href="https://fwd.aws/rA69w?" target="_blank" rel="noopener">AWS Partner Solution General Information Guide</a> and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/troubleshooting.html" target="_blank" rel="noopener">Troubleshooting CloudFormation</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_customer_responsibility">Customer responsibility</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>After you deploy a Partner Solution, confirm that your resources and services are updated and configured—including any required patches—to meet your security and other needs. For more information, refer to the <a href="https://aws.amazon.com/compliance/shared-responsibility-model/" target="_blank" rel="noopener">Shared Responsibility Model</a>.</p>
 </div>
 </div>
 </div>
@@ -1202,7 +1270,7 @@ Unless you are customizing the Quick Start templates for your own projects, don&
 <h2 id="_feedback">Feedback</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To submit feature ideas and report bugs, use the <strong>Issues</strong> section of the <a href="https://github.com/aws-quickstart/quickstart-nvidia-cloudxr" target="_blank" rel="noopener">GitHub repository</a> for this Quick Start. To submit code, refer to the <a href="https://fwd.aws/NwqYA?" target="_blank" rel="noopener">Quick Start Contributor&#8217;s Guide</a>. To submit feedback on this deployment guide, use the following GitHub links:</p>
+<p>To submit feature ideas and report bugs, use the <strong>Issues</strong> section of the <a href="https://github.com/aws-quickstart/quickstart-nvidia-cloudxr" target="_blank" rel="noopener">GitHub repository</a> for this Partner Solution. To submit code, refer to the <a href="https://fwd.aws/NwqYA?" target="_blank" rel="noopener">Partner Solution Contributor&#8217;s Guide</a>. To submit feedback on this deployment guide, use the following GitHub links:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1229,7 +1297,7 @@ Unless you are customizing the Quick Start templates for your own projects, don&
 <p>This document is provided for informational purposes only. It represents current AWS product offerings and practices as of the date of issue of this document, which are subject to change without notice. Customers are responsible for making their own independent assessment of the information in this document and any use of AWS products or services, each of which is provided "as is" without warranty of any kind, whether expressed or implied. This document does not create any warranties, representations, contractual commitments, conditions, or assurances from AWS, its affiliates, suppliers, or licensors. The responsibilities and liabilities of AWS to its customers are controlled by AWS agreements, and this document is not part of, nor does it modify, any agreement between AWS and its customers.</p>
 </div>
 <div class="paragraph">
-<p>The software included with this paper is licensed under the Apache License, version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at <a href="http://aws.amazon.com/apache2.0/" target="_blank" rel="noopener">http://aws.amazon.com/apache2.0/</a> or in the accompanying "license" file. This code is distributed on an "as is" basis, without warranties or conditions of any kind, either expressed or implied. Refer to the License for specific language governing permissions and limitations.</p>
+<p>The software included with this paper is licensed under the Apache License, version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at <a href="https://aws.amazon.com/apache2.0/" target="_blank" rel="noopener">https://aws.amazon.com/apache2.0/</a> or in the accompanying "license" file. This code is distributed on an "as is" basis, without warranties or conditions of any kind, either expressed or implied. Refer to the License for specific language governing permissions and limitations.</p>
 </div>
 </div>
 </div>
@@ -1239,7 +1307,7 @@ Unless you are customizing the Quick Start templates for your own projects, don&
         <!-- We can use document attributes: -->
         <!-- Generated with Asciidoctor v2.0.17. -->
         <a href="https://aws.amazon.com/privacy/">Privacy</a> | <a href="https://aws.amazon.com/terms/">Site terms</a> |
-        &copy; 2022, Amazon Web Services, Inc. or its affiliates and Autodesk. All rights reserved.
+        &copy; 2023, Amazon Web Services, Inc. or its affiliates and Autodesk. All rights reserved.
     </p>
 </footer>
 </body>

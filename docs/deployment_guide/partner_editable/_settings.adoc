@@ -1,13 +1,13 @@
-:quickstart-project-name: quickstart-nvidia-cloudxr
-:quickstart-github-org: aws-quickstart
-:partner-product-name: VRED and CloudXR
+:partner-solution-project-name: quickstart-nvidia-cloudxr
+:partner-solution-github-org: aws-quickstart
+:partner-product-name:  Autodesk VRED and NVIDIA CloudXR
 :partner-product-short-name: VRED
 :partner-company-name: Autodesk
-:doc-month: June
-:doc-year: 2022
-// :partner-contributors: John Smith, {partner-company-name}
+:doc-month: February
+:doc-year: 2023
+:partner-contributors: Sahil Saini, Autodesk Solutions Architect team and Norman Geiersbach, Autodesk Sr. Principal Engineer
 // :other-contributors: Akua Mansa, Trek10
-:aws-contributors: Sahil Saini, Autodesk Solutions Architect
+:aws-contributors: Marcos Hernandez Alvarez, AWS Solutions Architect team
 :aws-ia-contributors: Dave May, AWS Integration & Automation team
 :deployment_time: 30 minutes
 :default_deployment_region: us-east-1
