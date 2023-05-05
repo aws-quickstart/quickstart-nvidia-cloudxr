@@ -41,7 +41,7 @@ Install the Steam client to store SteamVR binary.
 ..... Compress this entire directory into a .zip file named *SteamVR.zip*. This binary is used to install Steam VR.
 . Store the SteamVR.zip binary in the previously created Amazon S3 bucket.
 
-=== Set up Amazon Elastic Compute Cloud (Amazon EC2) for Network License Management
+=== Set up Amazon Elastic Compute Cloud (Amazon EC2) for Autodesk Network License Management
 
 Create and configure a network interface to manage your license.
 

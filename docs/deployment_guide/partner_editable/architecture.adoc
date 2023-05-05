@@ -16,8 +16,8 @@ As shown in <<architecture1>>, this Partner Solution sets up the following:
 best practices, to provide you with your own virtual network on AWS.*
 * In the public subnets:
 ** Managed NAT gateways to allow outbound internet access for resources in the subnets.
-** An Amazon Elastic Compute Cloud (EC2) Windows instance for the Autodesk VRED primary node.
-** NVIDIA CloudXR, Steam VR, and NICE DCV installed to Autodesk VRED collaborator nodes in an Auto Scaling group. You can choose G4dn or G5 EC2 instance types for the collaborator nodes during deployment.
+** An Amazon Elastic Compute Cloud (EC2) Windows instance for the Autodesk VRED primary node that allows the primary user to share and view (in real time) with collaborators.
+** NVIDIA CloudXR, https://store.steampowered.com/about/[Steam VR^], and https://download.nice-dcv.com/[NICE DCV^] installed to Autodesk VRED collaborator nodes in an Auto Scaling group. You can choose G4dn or G5 EC2 instance types for the collaborator nodes during deployment.
 // Add bullet points for any additional components that are included in the deployment. Ensure that the additional components are shown in the architecture diagram. End each bullet with a period.
 
 [.small]#* The template that deploys this Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
