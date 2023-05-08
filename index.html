@@ -863,7 +863,7 @@ p.footer-text a{color:#d7d8d8}
 <li><a href="#_subscribe_to_cloudxr_marketplace_offering">Subscribe to CloudXR Marketplace offering</a></li>
 <li><a href="#_create_amazon_simple_storage_service_amazon_s3_bucket_to_store_binaries">Create Amazon Simple Storage Service (Amazon S3) bucket to store binaries</a></li>
 <li><a href="#_install_steamvr_binary">Install SteamVR binary</a></li>
-<li><a href="#_set_up_amazon_elastic_compute_cloud_amazon_ec2_for_network_license_management">Set up Amazon Elastic Compute Cloud (Amazon EC2) for Network License Management</a></li>
+<li><a href="#_set_up_amazon_elastic_compute_cloud_amazon_ec2_for_autodesk_network_license_management">Set up Amazon Elastic Compute Cloud (Amazon EC2) for Autodesk Network License Management</a></li>
 <li><a href="#_install_autodesk_vred_core_binary">Install Autodesk VRED Core binary</a></li>
 </ul>
 </li>
@@ -971,10 +971,10 @@ best practices, to provide you with your own virtual network on AWS.*</p>
 <p>Managed NAT gateways to allow outbound internet access for resources in the subnets.</p>
 </li>
 <li>
-<p>An Amazon Elastic Compute Cloud (EC2) Windows instance for the Autodesk VRED primary node.</p>
+<p>An Amazon Elastic Compute Cloud (EC2) Windows instance for the Autodesk VRED primary node that allows the primary user to share and view (in real time) with collaborators.</p>
 </li>
 <li>
-<p>NVIDIA CloudXR, Steam VR, and NICE DCV installed to Autodesk VRED collaborator nodes in an Auto Scaling group. You can choose G4dn or G5 EC2 instance types for the collaborator nodes during deployment.</p>
+<p>NVIDIA CloudXR, <a href="https://store.steampowered.com/about/" target="_blank" rel="noopener">Steam VR</a>, and <a href="https://download.nice-dcv.com/" target="_blank" rel="noopener">NICE DCV</a> installed to Autodesk VRED collaborator nodes in an Auto Scaling group. You can choose G4dn or G5 EC2 instance types for the collaborator nodes during deployment.</p>
 </li>
 </ul>
 </div>
@@ -1098,7 +1098,7 @@ best practices, to provide you with your own virtual network on AWS.*</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_set_up_amazon_elastic_compute_cloud_amazon_ec2_for_network_license_management">Set up Amazon Elastic Compute Cloud (Amazon EC2) for Network License Management</h3>
+<h3 id="_set_up_amazon_elastic_compute_cloud_amazon_ec2_for_autodesk_network_license_management">Set up Amazon Elastic Compute Cloud (Amazon EC2) for Autodesk Network License Management</h3>
 <div class="paragraph">
 <p>Create and configure a network interface to manage your license.</p>
 </div>
@@ -1316,7 +1316,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 </html>
 <!--
 repo commit:
-03a785fdea0fd8424d47b045f5efa8b8237f2e30
+da2ac88c101cb47590530a71af9c7006f08711c9
 
 submodule config:
  897d0a2f9b90fcdbc9520a2d0d44558d485a5b1e docs/boilerplate (897d0a2)
