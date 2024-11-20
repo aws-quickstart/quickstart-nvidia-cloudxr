@@ -309,7 +309,7 @@ Resources:
                   - !Sub ['arn:${AWS::Partition}:s3:::${S3Bucket}/${QSS3KeyPrefix}*', S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]]
                   - !Sub ['arn:${AWS::Partition}:s3:::${S3Bucket}', S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]]
                   - !Sub "arn:${AWS::Partition}:s3:::${MediaS3Bucket}/*"
-                  - !Sub "arn:${AWS::Partition}:s3:::${MediaS3Bucket}'"
+                  - !Sub "arn:${AWS::Partition}:s3:::${MediaS3Bucket}"
         - PolicyName: NiceDCVLicenseS3BucketAccess
           PolicyDocument:
             Version: '2012-10-17'
